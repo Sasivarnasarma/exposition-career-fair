@@ -21,7 +21,9 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
     "test": "node --conditions=react-server --import tsx --test tests/*.test.ts",
-    "db:verify": "node --conditions=react-server --import tsx scripts/verify-database.ts"
+    "db:verify": "node --conditions=react-server --import tsx scripts/verify-database.ts",
+    "admin:provision": "node --conditions=react-server --import tsx scripts/provision-super-admin.ts",
+    "auth:verify": "node --conditions=react-server --import tsx scripts/verify-auth.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.7",

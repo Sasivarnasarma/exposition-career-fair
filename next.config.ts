@@ -4,6 +4,18 @@ const nextConfig: NextConfig = {
   // Keep production builds separate from a running development server.
   distDir: process.env.NODE_ENV === "production" ? ".next-production" : ".next",
   images: { qualities: [75, 90] },
+  async headers() {
+    return [
+      {
+        source: "/admin/:path*",
+        headers: [
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Cache-Control", value: "private, no-store" },
+        ],
+      },
+    ];
+  },
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {
