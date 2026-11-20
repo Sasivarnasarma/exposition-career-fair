@@ -1,0 +1,13 @@
+node_modules/
+.next/
+out/
+build/
+coverage/
+.pnpm-store/
+work/
+src/generated/
+next-env.d.ts
+*.tsbuildinfo
+pnpm-lock.yaml
+.env*
+public/
