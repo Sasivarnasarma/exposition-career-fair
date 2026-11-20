@@ -11,6 +11,10 @@ import {
   trustedClientIp,
 } from "../security/rate-limit";
 import { verifyTurnstile } from "../security/turnstile";
+import { encryptEmailPayload } from "../email/crypto";
+import { queueEmail } from "../email/queue";
+import { emailAppOrigin, emailSender } from "../email/config";
+import { hashEmailToken } from "../email/tokens";
 import { normalizeEmail } from "../../shared/normalization";
 
 export const ADMIN_SESSION_SECONDS = 8 * 60 * 60;
@@ -39,6 +43,25 @@ function createAdminAuth() {
       minPasswordLength: 12,
       maxPasswordLength: 128,
       revokeSessionsOnPasswordReset: true,
+      resetPasswordTokenExpiresIn: 3600,
+      sendResetPassword: async ({ user, token }) => {
+        const profile = await db.adminProfile.findUnique({
+          where: { userId: user.id },
+        });
+        if (!profile?.active) return;
+        const action = new URL("/admin/reset-password", emailAppOrigin());
+        action.hash = `token=${token}`;
+        await db.$transaction(async (tx) => {
+          await queueEmail(tx, {
+            kind: "ADMIN_PASSWORD_RESET",
+            to: user.email,
+            recipientName: user.name,
+            actionUrl: action.toString(),
+            dedupeKey: `admin-password-reset:${hashEmailToken(token)}`,
+            expiresAt: new Date(Date.now() + 3600000),
+          });
+        });
+      },
     },
     session: {
       expiresIn: ADMIN_SESSION_SECONDS,
@@ -68,6 +91,11 @@ function createAdminAuth() {
             message: "This request is not allowed.",
           });
         if (ctx.path === "/sign-out") return;
+        // Check queue configuration equally for known and unknown reset addresses.
+        if (ctx.path === "/request-password-reset") {
+          emailSender();
+          encryptEmailPayload({});
+        }
         const email = normalizeEmail(
           typeof ctx.body?.email === "string" ? ctx.body.email : "",
         );
@@ -108,13 +136,6 @@ function createAdminAuth() {
             message: "Sign-in is temporarily unavailable. Please try again.",
           });
         }
-        // Delivery is enabled in Phase 6. Avoid issuing undeliverable reset tokens.
-        if (ctx.path === "/request-password-reset")
-          return ctx.json({
-            status: true,
-            message:
-              "Please contact the organising committee for account recovery.",
-          });
       }),
     },
     databaseHooks: {

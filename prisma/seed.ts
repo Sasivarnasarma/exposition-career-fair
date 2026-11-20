@@ -1,4 +1,5 @@
 import "../scripts/load-env";
+import { privacy } from "../src/config/privacy";
 import { createDatabase } from "../src/server/db/factory";
 import {
   careerCategories,
@@ -23,6 +24,14 @@ async function seed() {
               registrationOpen: false,
             },
           ],
+        });
+        await tx.eventEdition.updateMany({
+          where: {
+            id: "issue-22-2027",
+            registrationOpen: false,
+            privacyVersion: "draft-not-for-consent",
+          },
+          data: { privacyVersion: privacy.version },
         });
         await tx.careerCategory.createMany({
           skipDuplicates: true,

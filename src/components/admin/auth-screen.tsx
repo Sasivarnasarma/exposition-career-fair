@@ -35,7 +35,7 @@ export function AuthScreen({ mode }: { mode: "login" | "forgot" | "reset" }) {
           {mode === "login"
             ? "Sign in to your organiser workspace."
             : mode === "forgot"
-              ? "Contact the organising committee to restore access. Email recovery links will be available soon."
+              ? "Request a password-reset link for your organiser account."
               : "Choose a strong password to keep your organiser account secure."}
         </p>
         <Suspense

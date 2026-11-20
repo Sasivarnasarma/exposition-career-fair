@@ -2,7 +2,12 @@ import "server-only";
 import { z } from "zod";
 import { AppError } from "../http/errors";
 
-export type ChallengeAction = "admin-login" | "admin-reset" | "registration";
+export type ChallengeAction =
+  | "admin-login"
+  | "admin-reset"
+  | "registration"
+  | "candidate-resend"
+  | "admin-invitation";
 export const TEST_SITE_KEY = "1x00000000000000000000AA";
 const TEST_SECRET = "1x0000000000000000000000000000000AA";
 

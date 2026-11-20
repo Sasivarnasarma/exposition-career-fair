@@ -44,7 +44,12 @@ export function Turnstile({
   action,
   onToken,
 }: {
-  action: "admin-login" | "admin-reset" | "registration";
+  action:
+    | "admin-login"
+    | "admin-reset"
+    | "registration"
+    | "candidate-resend"
+    | "admin-invitation";
   onToken: (token: string) => void;
 }) {
   const container = useRef<HTMLDivElement>(null);

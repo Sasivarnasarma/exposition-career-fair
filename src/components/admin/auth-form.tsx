@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,8 +21,31 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const [success, setSuccess] = useState(false);
   const [visible, setVisible] = useState(false);
   const alert = useRef<HTMLDivElement>(null);
-  const resetToken = params.get("token");
-  const invalidReset = mode === "reset" && (!resetToken || params.has("error"));
+  const [resetToken, setResetToken] = useState<string | null>(null);
+  const [resetReady, setResetReady] = useState(mode !== "reset");
+  const initialized = useRef(false);
+  useEffect(() => {
+    if (mode !== "reset" || initialized.current) return;
+    initialized.current = true;
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    const values = fragment.getAll("token");
+    const value =
+      values.length === 1 && /^[A-Za-z0-9_-]{20,256}$/.test(values[0])
+        ? values[0]
+        : null;
+    if (fragment.has("token"))
+      window.history.replaceState(
+        window.history.state,
+        "",
+        window.location.pathname + window.location.search,
+      );
+    void Promise.resolve().then(() => {
+      setResetToken(value);
+      setResetReady(true);
+    });
+  }, [mode]);
+  const invalidReset =
+    mode === "reset" && resetReady && (!resetToken || params.has("error"));
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pending.current || !token || invalidReset) return;
@@ -81,7 +104,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         setSuccess(true);
         setMessage(
           mode === "forgot"
-            ? "Please contact the organising committee for account recovery. Email reset links are not available yet."
+            ? "If an eligible organiser account exists, a reset message has been queued. Check your inbox and spam folder."
             : "Password updated. You can now sign in with your new password.",
         );
       }
@@ -123,7 +146,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
           {message}
         </div>
       )}
-      {!success && !invalidReset && (
+      {!resetReady && <p role="status">Loading reset link...</p>}
+      {resetReady && !success && !invalidReset && (
         <>
           {mode !== "reset" && (
             <div className="space-y-2">

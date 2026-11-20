@@ -35,9 +35,9 @@ ESLint retains Next.js Core Web Vitals and TypeScript rules; formatting is handl
 - React Hook Form and Zod
 - PostgreSQL with Prisma and the pg adapter
 - Better Auth for administrator authentication
-- Resend for planned transactional email
+- Resend for transactional email
 
-Copy `.env.example` to `.env.local` and provide real values when configuring services. Credentials must remain on the server. The PostgreSQL schema, seed catalogs, transactional persistence, and infrastructure checks are implemented. Administrator authentication, session authorization, and Turnstile enforcement are implemented. The four-step registration flow, guarded submission endpoint, and signed receipt are implemented. Public registration remains closed pending privacy and launch checks. CSV exports and email delivery remain in development.
+Copy `.env.example` to `.env.local` and provide real values when configuring services. Credentials must remain on the server. The PostgreSQL schema, seed catalogs, transactional persistence, and infrastructure checks are implemented. Administrator authentication, session authorization, and Turnstile enforcement are implemented. The four-step registration flow, guarded submission endpoint, and signed receipt are implemented. Public registration remains closed pending privacy and launch checks. CSV exports and the full admin dashboard remain in development.
 
 ## Administrator access
 
@@ -57,7 +57,7 @@ Run `pnpm admin:provision` from an interactive terminal to create the initial su
 
 `pnpm auth:verify` requires `DATABASE_TEST_MODE=dedicated-development` and the public development test keys. It checks the real Cloudflare test service once, then uses controlled verification responses while exercising real Better Auth and PostgreSQL operations. Temporary identities, sessions, audit records, verification values, and uniquely scoped rate-limit buckets are cleaned up.
 
-Login and recovery submissions require Turnstile plus shared account/global limits and optional trusted-proxy IP limits. Administrator permissions are checked from the database on each protected request; disabled profiles lose access and their sessions are revoked. Password-reset screens and single-use token handling exist, but reset requests currently direct users to the organising committee. Resend reset-link delivery follows in the email phase. No permanent administrator is created automatically.
+Login and recovery submissions require Turnstile plus shared account/global limits and optional trusted-proxy IP limits. Administrator permissions are checked from the database on each protected request; disabled profiles lose access and their sessions are revoked. Password-reset requests queue encrypted email work and single-use links; successful resets revoke existing sessions. No permanent administrator is created automatically.
 
 ## Candidate registration
 
@@ -70,3 +70,15 @@ Production registration requires both the site launch flag and an open event wit
 `pnpm registration:verify` requires `DATABASE_TEST_MODE=dedicated-development` and the public development Turnstile keys. It creates a unique temporary event, verifies the actual submission handler and receipt/retry/failure rules, and removes its records. No email is sent. Real production Turnstile hostname/action verification and published privacy wording are launch requirements.
 
 For parallel local QA, `EXPOSITION_QA=true` selects a separate ignored `.next-qa` development cache; production always uses its normal production output. Temporary test editions must be created and removed in the dedicated development database rather than opening the public event.
+
+## Email delivery and verification
+
+Registration queues durable confirmation work in its transaction. Request handlers use Next.js `after()` to attempt delivery after returning the response; queued work survives request or provider failures. Vercel Hobby's daily recovery cron calls the bearer-protected `/api/internal/email-jobs` endpoint. Immediate sending does not require a paid scheduler. Failed/expired links can be requested again through the protected verification/recovery screens. Daily recovery cannot guarantee prompt retry during a long provider outage; use a more frequent external scheduler or a plan supporting frequent cron if required.
+
+Configure the server-only `RESEND_API_KEY`, verified `EMAIL_FROM` (or `RESEND_FROM_EMAIL` plus `FROM_NAME`), `EMAIL_PAYLOAD_SECRET` (64 random hex characters), and `CRON_SECRET` (32+ random characters). Set `EMAIL_DELIVERY_ENABLED=true` only after sender/delivery verification. Preview deployments never drain the delivery queue. Non-production live sending is restricted to `EMAIL_TEST_RECIPIENT`. Keep private sender/recipient values only in ignored configuration.
+
+`pnpm email:preview` generates placeholder HTML under locally excluded preview output. `pnpm email:work` processes a bounded queue batch. Sent means accepted by the email provider; it does not assert inbox delivery or candidate verification. Queue payloads contain encrypted rendered messages for stable idempotent retries and are cleared on terminal outcomes. Verification/invitation token hashes are stored separately. The worker leases jobs with PostgreSQL locking, keeps stable provider idempotency keys, limits attempts, and stops ambiguous retries before the provider's 24-hour deduplication window expires. Failed jobs require an explicitly fresh request; secrets must not be rotated while pending encrypted payloads need them.
+
+Candidate verification links use a URL fragment, are scrubbed into memory by the page, and require an explicit action rather than consuming on GET. Links expire after 48 hours. Password-reset links expire after one hour and invitations after 48 hours; acceptance creates only an ordinary admin. Public admin sign-up stays disabled. The super-admin invitation creation UI follows in the dashboard phase.
+
+Candidate retention is 90 days after the event, as approved for this project. The published Privacy Notice describes this and the configured service providers. The organising team must execute the deletion process and manage exports/provider backups; no automatic deletion is enabled before the event date and operations are finalized. Registration remains closed until launch approval.

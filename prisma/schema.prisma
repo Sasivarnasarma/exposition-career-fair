@@ -17,6 +17,7 @@ enum EmailState {
   PROCESSING
   SENT
   FAILED
+  CANCELLED
 }
 
 enum OptionKind {
@@ -304,22 +305,27 @@ model CandidateVerification {
 }
 
 model EmailJob {
-  id             String        @id @default(uuid())
-  registrationId String?
-  kind           String
+  id                String        @id @default(uuid())
+  registrationId    String?
+  kind              String
   // Store references, never plaintext reset/verification tokens.
-  dedupeKey      String        @unique
-  state          EmailState    @default(PENDING)
-  attempts       Int           @default(0)
-  availableAt    DateTime      @default(now()) @db.Timestamptz(3)
-  lockedAt       DateTime?     @db.Timestamptz(3)
-  sentAt         DateTime?     @db.Timestamptz(3)
-  providerId     String?
-  lastErrorCode  String?
-  createdAt      DateTime      @default(now()) @db.Timestamptz(3)
-  registration   Registration? @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  dedupeKey         String        @unique
+  state             EmailState    @default(PENDING)
+  attempts          Int           @default(0)
+  availableAt       DateTime      @default(now()) @db.Timestamptz(3)
+  lockedAt          DateTime?     @db.Timestamptz(3)
+  sentAt            DateTime?     @db.Timestamptz(3)
+  providerId        String?
+  payloadCiphertext String?
+  firstAttemptAt    DateTime?     @db.Timestamptz(3)
+  expiresAt         DateTime?     @db.Timestamptz(3)
+  leaseToken        String?
+  lastErrorCode     String?
+  createdAt         DateTime      @default(now()) @db.Timestamptz(3)
+  registration      Registration? @relation(fields: [registrationId], references: [id], onDelete: Cascade)
 
   @@index([state, availableAt])
+  @@index([lockedAt])
 }
 
 model RateLimitBucket {

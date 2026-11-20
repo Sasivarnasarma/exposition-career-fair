@@ -40,6 +40,18 @@ export async function handleAuth(request: Request) {
           );
         body = { ...parsed.data, rememberMe: false };
       }
+      if (path === "request-password-reset") {
+        const input = z
+          .object({ email: z.string().trim().email().max(254) })
+          .safeParse(body);
+        if (!input.success)
+          throw new AppError(
+            "INVALID_REQUEST",
+            400,
+            "Enter a valid email address.",
+          );
+        body = { email: input.data.email.toLowerCase() };
+      }
       bounded = new Request(request.url, {
         method: request.method,
         headers: request.headers,

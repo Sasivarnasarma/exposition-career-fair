@@ -24,7 +24,11 @@
     "db:verify": "node --conditions=react-server --import tsx scripts/verify-database.ts",
     "admin:provision": "node --conditions=react-server --import tsx scripts/provision-super-admin.ts",
     "auth:verify": "node --conditions=react-server --import tsx scripts/verify-auth.ts",
-    "registration:verify": "node --conditions=react-server --import tsx scripts/verify-registration.ts"
+    "registration:verify": "node --conditions=react-server --import tsx scripts/verify-registration.ts",
+    "email:work": "node --conditions=react-server --import tsx scripts/work-emails.ts",
+    "email:preview": "node --import tsx scripts/preview-emails.ts",
+    "email:test": "node --conditions=react-server --import tsx scripts/test-email.ts",
+    "email:verify": "node --conditions=react-server --import tsx scripts/verify-email-lifecycle.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.7",
