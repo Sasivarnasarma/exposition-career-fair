@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+
 import {
   ArrowDown,
   ArrowUpRight,
@@ -7,8 +7,12 @@ import {
   Sparkle,
   UsersRound,
 } from "lucide-react";
-import conversation from "@/assets/images/previous-fair-conversation.webp";
-import candidates from "@/assets/images/previous-fair-candidates.webp";
+import {
+  EventGallery,
+  EventSlideshow,
+  NextPhotoPreview,
+} from "@/components/landing/event-slideshow";
+
 import { Reveal } from "@/components/landing/reveal";
 import { RegistrationLink } from "@/components/landing/registration-link";
 import { site } from "@/config/site";
@@ -90,80 +94,60 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <Reveal
-            delay={0.12}
-            className="relative min-w-0 pb-8 pl-5 sm:pl-9 lg:pt-6"
-          >
-            <div
-              aria-hidden="true"
-              className="absolute top-0 right-3 h-[80%] w-[88%] rotate-[5deg] rounded-[2rem] border border-primary/25 bg-primary/3"
-            />
-            <figure className="group relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-card shadow-2xl shadow-black/40">
-              <div className="relative aspect-[1/1.05] overflow-hidden sm:aspect-[1.15/1] lg:aspect-[1/1.05]">
-                <Image
-                  src={conversation}
-                  alt="A candidate speaking with representatives at the previous Exposition Career Fair"
-                  fill
-                  preload
-                  sizes="(max-width: 639px) calc(100vw - 52px), (max-width: 1023px) calc(100vw - 100px), (max-width: 1400px) 45vw, 580px"
-                  placeholder="blur"
-                  className="object-cover object-[60%_center] transition-transform duration-700 group-hover:scale-[1.035] motion-reduce:transform-none"
-                />
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/0 to-black/10"
-                />
-              </div>
-              <figcaption className="absolute right-4 bottom-6 left-[46%] text-white sm:right-6">
-                <span className="mb-3 inline-flex items-center gap-2 text-[10px] font-medium tracking-[0.17em] uppercase">
-                  <span
-                    aria-hidden="true"
-                    className="size-1.5 rounded-full bg-primary"
-                  />
-                  From the previous fair
-                </span>
-                <p className="max-w-[18ch] text-base leading-tight font-semibold tracking-tight min-[400px]:text-xl sm:text-2xl">
-                  Real conversations.
-                  <br />
-                  New perspectives.
-                </p>
-              </figcaption>
-            </figure>
+          <EventGallery>
             <Reveal
-              hover
-              delay={0.22}
-              className="absolute -bottom-4 -left-1 w-[44%] sm:-bottom-6 sm:left-0"
+              delay={0.12}
+              className="relative min-w-0 pb-8 pl-5 sm:pl-9 lg:pt-6"
             >
-              <figure className="overflow-hidden rounded-2xl border-[5px] border-background bg-card shadow-xl shadow-black/40">
-                <div className="relative aspect-[1.25/1]">
-                  <Image
-                    src={candidates}
-                    alt="Students exploring career information together at the previous Career Fair"
-                    fill
-                    sizes="(max-width: 1023px) 42vw, 250px"
-                    placeholder="blur"
-                    className="object-cover object-[50%_40%]"
+              <div
+                aria-hidden="true"
+                className="absolute top-0 right-3 h-[80%] w-[88%] rotate-[5deg] rounded-[2rem] border border-primary/25 bg-primary/3"
+              />
+              <figure className="group relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-card shadow-2xl shadow-black/40">
+                <div className="relative aspect-[1/1.05] overflow-hidden sm:aspect-[1.15/1] lg:aspect-[1/1.05]">
+                  <EventSlideshow />
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/0 to-black/10"
                   />
                 </div>
-                <figcaption className="px-3 py-3 text-[10px] font-medium text-muted-foreground">
-                  A glimpse of the last edition
+                <figcaption className="pointer-events-none absolute right-4 bottom-6 left-[42%] rounded-xl bg-black/80 p-2 text-white sm:right-6 sm:p-3">
+                  <span className="mb-3 inline-flex items-center gap-2 text-[10px] font-medium tracking-[0.17em] uppercase">
+                    <span
+                      aria-hidden="true"
+                      className="size-1.5 rounded-full bg-primary"
+                    />
+                    From the previous fair
+                  </span>
+                  <p className="max-w-[18ch] text-sm leading-tight font-semibold tracking-tight min-[400px]:text-lg sm:text-2xl">
+                    Real conversations.
+                    <br />
+                    New perspectives.
+                  </p>
                 </figcaption>
               </figure>
+              <Reveal
+                hover
+                delay={0.22}
+                className="absolute -bottom-4 -left-1 w-[44%] sm:-bottom-6 sm:left-0"
+              >
+                <NextPhotoPreview />
+              </Reveal>
+              <div
+                aria-hidden="true"
+                className="absolute -top-2 right-0 flex size-16 items-center justify-center rounded-full border border-primary/30 bg-background shadow-xl sm:size-20"
+              >
+                <Sparkle
+                  className="hero-spark size-8 text-primary sm:size-10"
+                  strokeWidth={1}
+                />
+              </div>
+              <p className="mt-5 ml-auto max-w-[48%] text-right text-[10px] leading-5 text-muted-foreground sm:text-xs">
+                One conversation can open
+                <br />a whole new direction.
+              </p>
             </Reveal>
-            <div
-              aria-hidden="true"
-              className="absolute -top-2 right-0 flex size-16 items-center justify-center rounded-full border border-primary/30 bg-background shadow-xl sm:size-20"
-            >
-              <Sparkle
-                className="hero-spark size-8 text-primary sm:size-10"
-                strokeWidth={1}
-              />
-            </div>
-            <p className="mt-5 ml-auto max-w-[48%] text-right text-[10px] leading-5 text-muted-foreground sm:text-xs">
-              One conversation can open
-              <br />a whole new direction.
-            </p>
-          </Reveal>
+          </EventGallery>
         </div>
         <Reveal
           className="mt-16 border-t border-b border-border py-7 sm:mt-20"
