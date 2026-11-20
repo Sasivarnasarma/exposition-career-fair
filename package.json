@@ -28,6 +28,7 @@
     "email:work": "node --conditions=react-server --import tsx scripts/work-emails.ts",
     "email:preview": "node --import tsx scripts/preview-emails.ts",
     "email:test": "node --conditions=react-server --import tsx scripts/test-email.ts",
+    "admin:verify": "node --conditions=react-server --import tsx scripts/verify-admin.ts",
     "email:verify": "node --conditions=react-server --import tsx scripts/verify-email-lifecycle.ts"
   },
   "dependencies": {
