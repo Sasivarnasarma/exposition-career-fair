@@ -12,6 +12,7 @@ const eslintConfig = defineConfig([
     // Default ignores of eslint-config-next:
     ".next/**",
     ".next-production/**",
+    ".next-qa/**",
     "work/**",
     ".pnpm-store/**",
     "out/**",

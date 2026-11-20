@@ -55,6 +55,10 @@ async function seed() {
           skipDuplicates: true,
           data: formOptions,
         });
+        await tx.formOption.updateMany({
+          where: { id: "year-other", label: "Other / Recently Graduated" },
+          data: { label: "Other academic status" },
+        });
         // An unlisted institution is supported by required name fields on the registration.
         await tx.institution.createMany({
           skipDuplicates: true,

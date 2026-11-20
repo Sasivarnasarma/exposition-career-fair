@@ -1,7 +1,11 @@
 import { z } from "zod";
 import { normalizeEmail } from "./normalization";
 
-const text = z.string().trim().min(1).max(200);
+const text = z
+  .string()
+  .trim()
+  .min(1, "Please complete this field")
+  .max(200, "Please use no more than 200 characters");
 const optionalText = z.string().trim().max(200).optional();
 const url = z
   .url()
@@ -19,14 +23,15 @@ export const registrationDataSchema = z
           .trim()
           .min(7)
           .max(30)
-          .regex(/^[+\d\s().-]+$/)
+          .regex(/^\+?[\d\s().-]+$/)
           .refine(
             (value) => {
               const digits = value.replace(/\D/g, "");
               return digits.length >= 7 && digits.length <= 15;
             },
             { message: "Please enter a valid contact number" },
-          ),
+          )
+          .transform((value) => value.replace(/[\s().-]/g, "")),
         districtId: text,
         linkedInUrl: url,
         portfolioUrl: url,
@@ -42,9 +47,23 @@ export const registrationDataSchema = z
         degreeName: text,
         specialization: optionalText,
         academicYearId: text,
-        graduationYear: z.number().int().min(1950).max(2200),
-        gpa: z.number().min(0).max(99).optional(),
-        gpaScale: z.number().positive().max(99).optional(),
+        graduationYear: z
+          .number({ error: "Enter a valid graduation year" })
+          .int("Enter a whole year")
+          .min(1950)
+          .max(2200),
+        gpa: z
+          .number()
+          .min(0)
+          .max(99)
+          .multipleOf(0.01, "Use no more than two decimal places")
+          .optional(),
+        gpaScale: z
+          .number()
+          .positive()
+          .max(99)
+          .multipleOf(0.01, "Use no more than two decimal places")
+          .optional(),
       })
       .strict()
       .refine(
@@ -56,43 +75,59 @@ export const registrationDataSchema = z
         {
           message:
             "Provide GPA and scale together, with GPA no greater than the scale",
+          path: ["gpa"],
+        },
+      )
+      .refine(
+        (a) =>
+          a.academicYearId !== "year-graduate" ||
+          a.graduationYear <= new Date().getUTCFullYear(),
+        {
+          message: "For recent graduates, enter the year you graduated",
+          path: ["graduationYear"],
         },
       ),
     preferences: z
       .object({
         positionIds: z
           .array(text)
-          .min(1)
+          .min(1, "Choose at least one option")
           .max(40)
           .transform((ids) => [...new Set(ids)].sort()),
         firstPreferencePositionId: text,
         otherPosition: optionalText,
         opportunityIds: z
           .array(text)
-          .min(1)
+          .min(1, "Choose at least one option")
           .max(7)
           .transform((ids) => [...new Set(ids)].sort()),
       })
       .strict()
       .refine((p) => p.positionIds.includes(p.firstPreferencePositionId), {
-        message: "First preference must be selected",
+        message: "Choose a first preference from your selected positions",
+        path: ["firstPreferencePositionId"],
       })
       .refine((p) => !p.positionIds.includes("other") || !!p.otherPosition, {
         message: "Specify the other career position",
+        path: ["otherPosition"],
       }),
     additional: z
       .object({
         referralSourceId: text,
         referralOther: optionalText,
-        accurate: z.literal(true),
+        accurate: z.literal(true, {
+          error: "Please confirm that your information is accurate",
+        }),
         updates: z.boolean(),
-        privacyAgreed: z.literal(true),
+        privacyAgreed: z.literal(true, {
+          error: "Please read and agree to the Privacy Notice",
+        }),
         privacyVersion: text,
       })
       .strict()
       .refine(
         (a) => a.referralSourceId !== "referral-other" || !!a.referralOther,
-        { message: "Specify the referral source" },
+        { message: "Specify the referral source", path: ["referralOther"] },
       ),
   })
   .strict();

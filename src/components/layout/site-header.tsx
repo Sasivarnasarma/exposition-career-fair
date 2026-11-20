@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { Brand } from "@/components/layout/brand";
@@ -9,8 +10,22 @@ import { routes } from "@/config/routes";
 import { site } from "@/config/site";
 import { RegistrationLink } from "@/components/landing/registration-link";
 
+const subscribeToMount = () => () => {};
+const clientMounted = () => true;
+const serverMounted = () => false;
+
 export function SiteHeader() {
-  const compact = usePathname().startsWith(routes.register);
+  const pathname = usePathname();
+  // Keep the shared prerendered header stable until the client route is known.
+  const mounted = useSyncExternalStore(
+    subscribeToMount,
+    clientMounted,
+    serverMounted,
+  );
+  const compact =
+    mounted &&
+    (pathname.startsWith(routes.register) ||
+      pathname.startsWith("/registration"));
   return (
     <header className="site-container pt-4 sm:pt-6">
       <nav

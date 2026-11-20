@@ -103,7 +103,8 @@ export const formOptions = [
     ["year-2", "2nd Year"],
     ["year-3", "3rd Year"],
     ["year-4", "4th Year"],
-    ["year-other", "Other / Recently Graduated"],
+    ["year-other", "Other academic status"],
+    ["year-graduate", "Recent graduate"],
   ].map(([id, label], sortOrder) => ({
     id,
     label,

@@ -112,7 +112,7 @@ test("registration validates first preference, Other, GPA and required consent",
 
 test("seed catalog has stable unique IDs and expected option coverage", () => {
   assert.equal(formOptions.filter((o) => o.kind === "DISTRICT").length, 25);
-  assert.equal(formOptions.filter((o) => o.kind === "ACADEMIC_YEAR").length, 5);
+  assert.equal(formOptions.filter((o) => o.kind === "ACADEMIC_YEAR").length, 6);
   assert.equal(
     formOptions.filter((o) => o.kind === "REFERRAL_SOURCE").length,
     7,
