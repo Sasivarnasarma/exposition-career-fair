@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { headers } from "next/headers";
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { ShieldCheck } from "lucide-react";
 import { authenticatedAdmin } from "@/server/auth/permissions";
@@ -9,6 +10,8 @@ import { SignOut } from "@/components/admin/sign-out";
 export const instant = false;
 
 async function Workspace() {
+  // Better Auth reads the clock; exclude session validation from prerendering.
+  await connection();
   const admin = await authenticatedAdmin(await headers());
   if (!admin) redirect("/admin/login?reason=session");
   return (
