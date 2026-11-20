@@ -1,0 +1,331 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AdminRole {
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum EmailState {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+}
+
+enum OptionKind {
+  DISTRICT
+  ACADEMIC_YEAR
+  REFERRAL_SOURCE
+}
+
+model User {
+  id            String        @id
+  name          String
+  email         String        @unique
+  emailVerified Boolean       @default(false)
+  image         String?
+  createdAt     DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime      @updatedAt @db.Timestamptz(3)
+  sessions      Session[]
+  accounts      Account[]
+  admin         AdminProfile?
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  token     String   @unique
+  expiresAt DateTime @db.Timestamptz(3)
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime? @db.Timestamptz(3)
+  refreshTokenExpiresAt DateTime? @db.Timestamptz(3)
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime  @updatedAt @db.Timestamptz(3)
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime @db.Timestamptz(3)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model AdminProfile {
+  userId      String            @id
+  role        AdminRole         @default(ADMIN)
+  active      Boolean           @default(true)
+  createdAt   DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime          @updatedAt @db.Timestamptz(3)
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invitations AdminInvitation[]
+  auditEvents AuditEvent[]
+}
+
+model AdminInvitation {
+  id          String       @id @default(uuid())
+  email       String
+  tokenHash   String       @unique
+  invitedById String
+  expiresAt   DateTime     @db.Timestamptz(3)
+  acceptedAt  DateTime?    @db.Timestamptz(3)
+  revokedAt   DateTime?    @db.Timestamptz(3)
+  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
+  invitedBy   AdminProfile @relation(fields: [invitedById], references: [userId], onDelete: Restrict)
+
+  @@index([email, expiresAt])
+}
+
+model AuditEvent {
+  id        String        @id @default(uuid())
+  actorId   String?
+  action    String
+  targetId  String?
+  // Only non-sensitive metadata such as export scope and record counts.
+  metadata  Json?
+  createdAt DateTime      @default(now()) @db.Timestamptz(3)
+  actor     AdminProfile? @relation(fields: [actorId], references: [userId], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([actorId, createdAt])
+}
+
+model EventEdition {
+  id                   String         @id
+  name                 String
+  year                 Int
+  registrationOpen     Boolean        @default(false)
+  registrationClosesAt DateTime?      @db.Timestamptz(3)
+  privacyVersion       String
+  createdAt            DateTime       @default(now()) @db.Timestamptz(3)
+  registrations        Registration[]
+}
+
+model FormOption {
+  id            String         @id
+  kind          OptionKind
+  label         String
+  sortOrder     Int
+  active        Boolean        @default(true)
+  districts     Registration[] @relation("District")
+  academicYears Registration[] @relation("AcademicYear")
+  referrals     Registration[] @relation("ReferralSource")
+
+  @@index([kind, sortOrder])
+}
+
+model Institution {
+  id            String         @id
+  name          String         @unique
+  active        Boolean        @default(true)
+  faculties     Faculty[]
+  registrations Registration[]
+}
+
+model Faculty {
+  id            String            @id
+  name          String
+  institutionId String
+  active        Boolean           @default(true)
+  institution   Institution       @relation(fields: [institutionId], references: [id], onDelete: Restrict)
+  programmes    DegreeProgramme[]
+  registrations Registration[]
+
+  @@unique([institutionId, name])
+}
+
+model DegreeProgramme {
+  id            String         @id
+  name          String
+  facultyId     String
+  active        Boolean        @default(true)
+  faculty       Faculty        @relation(fields: [facultyId], references: [id], onDelete: Restrict)
+  registrations Registration[]
+
+  @@unique([facultyId, name])
+}
+
+model CareerCategory {
+  id        String           @id
+  label     String
+  sortOrder Int
+  positions CareerPosition[]
+}
+
+model CareerPosition {
+  id         String                 @id
+  label      String
+  categoryId String
+  sortOrder  Int
+  active     Boolean                @default(true)
+  category   CareerCategory         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  selections RegistrationPosition[]
+
+  @@index([categoryId, sortOrder])
+}
+
+model OpportunityType {
+  id         String                    @id
+  label      String
+  sortOrder  Int
+  active     Boolean                   @default(true)
+  selections RegistrationOpportunity[]
+}
+
+model Registration {
+  id                        String                    @id @default(uuid())
+  eventId                   String
+  reference                 String                    @unique
+  fullName                  String
+  email                     String
+  phone                     String
+  districtId                String
+  linkedInUrl               String?
+  portfolioUrl              String?
+  institutionId             String?
+  institutionName           String
+  facultyId                 String?
+  degreeProgrammeId         String?
+  facultyName               String
+  degreeName                String
+  specialization            String?
+  academicYearId            String
+  graduationYear            Int
+  gpa                       Decimal?                  @db.Decimal(4, 2)
+  gpaScale                  Decimal?                  @db.Decimal(4, 2)
+  firstPreferencePositionId String
+  otherPosition             String?
+  referralSourceId          String
+  referralOther             String?
+  emailVerifiedAt           DateTime?                 @db.Timestamptz(3)
+  // Request retries match the same business payload, excluding challenge tokens.
+  idempotencyKey            String
+  requestHash               String
+  createdAt                 DateTime                  @default(now()) @db.Timestamptz(3)
+  updatedAt                 DateTime                  @updatedAt @db.Timestamptz(3)
+  event                     EventEdition              @relation(fields: [eventId], references: [id], onDelete: Restrict)
+  district                  FormOption                @relation("District", fields: [districtId], references: [id], onDelete: Restrict)
+  academicYear              FormOption                @relation("AcademicYear", fields: [academicYearId], references: [id], onDelete: Restrict)
+  referralSource            FormOption                @relation("ReferralSource", fields: [referralSourceId], references: [id], onDelete: Restrict)
+  institution               Institution?              @relation(fields: [institutionId], references: [id], onDelete: Restrict)
+  faculty                   Faculty?                  @relation(fields: [facultyId], references: [id], onDelete: Restrict)
+  degreeProgramme           DegreeProgramme?          @relation(fields: [degreeProgrammeId], references: [id], onDelete: Restrict)
+  positions                 RegistrationPosition[]    @relation("Selections")
+  firstPreference           RegistrationPosition      @relation("FirstPreference", fields: [id, firstPreferencePositionId], references: [registrationId, positionId], onDelete: NoAction, onUpdate: NoAction)
+  opportunities             RegistrationOpportunity[]
+  consent                   ConsentRecord?
+  verificationTokens        CandidateVerification[]
+  emailJobs                 EmailJob[]
+
+  @@unique([eventId, email])
+  @@unique([eventId, idempotencyKey])
+  @@index([eventId, createdAt])
+  @@index([institutionId, academicYearId])
+}
+
+model RegistrationPosition {
+  registrationId String
+  positionId     String
+  registration   Registration   @relation("Selections", fields: [registrationId], references: [id], onDelete: Cascade)
+  position       CareerPosition @relation(fields: [positionId], references: [id], onDelete: Restrict)
+  firstFor       Registration[] @relation("FirstPreference")
+
+  @@id([registrationId, positionId])
+  @@index([positionId])
+}
+
+model RegistrationOpportunity {
+  registrationId String
+  opportunityId  String
+  registration   Registration    @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  opportunity    OpportunityType @relation(fields: [opportunityId], references: [id], onDelete: Restrict)
+
+  @@id([registrationId, opportunityId])
+  @@index([opportunityId])
+}
+
+model ConsentRecord {
+  registrationId String       @id
+  accurate       Boolean
+  updates        Boolean
+  privacyAgreed  Boolean
+  privacyVersion String
+  recordedAt     DateTime     @default(now()) @db.Timestamptz(3)
+  registration   Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+}
+
+model CandidateVerification {
+  id             String       @id @default(uuid())
+  registrationId String
+  tokenHash      String       @unique
+  expiresAt      DateTime     @db.Timestamptz(3)
+  consumedAt     DateTime?    @db.Timestamptz(3)
+  createdAt      DateTime     @default(now()) @db.Timestamptz(3)
+  registration   Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@index([registrationId, expiresAt])
+}
+
+model EmailJob {
+  id             String        @id @default(uuid())
+  registrationId String?
+  kind           String
+  // Store references, never plaintext reset/verification tokens.
+  dedupeKey      String        @unique
+  state          EmailState    @default(PENDING)
+  attempts       Int           @default(0)
+  availableAt    DateTime      @default(now()) @db.Timestamptz(3)
+  lockedAt       DateTime?     @db.Timestamptz(3)
+  sentAt         DateTime?     @db.Timestamptz(3)
+  providerId     String?
+  lastErrorCode  String?
+  createdAt      DateTime      @default(now()) @db.Timestamptz(3)
+  registration   Registration? @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@index([state, availableAt])
+}
+
+model RateLimitBucket {
+  key      String   @id
+  count    Int
+  resetsAt DateTime @db.Timestamptz(3)
+
+  @@index([resetsAt])
+}

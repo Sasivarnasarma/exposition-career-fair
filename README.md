@@ -37,8 +37,14 @@ ESLint retains Next.js Core Web Vitals and TypeScript rules; formatting is handl
 - Better Auth for planned admin authentication
 - Resend for planned transactional email
 
-Copy `.env.example` to `.env.local` and provide real values when configuring services. Credentials must remain on the server. Authentication, database schema, admin roles, registration, CSV exports, and email delivery are not implemented yet.
+Copy `.env.example` to `.env.local` and provide real values when configuring services. Credentials must remain on the server. The PostgreSQL schema, seed catalogs, transactional persistence, and infrastructure checks are implemented. Administrator login, public registration endpoints, CSV exports, Turnstile enforcement, and email delivery remain in development.
 
 ## Planned access
 
 Admins can view registrations, statistics, and export CSV. A manually provisioned super admin can additionally manage admins. Public admin sign-up will be disabled.
+
+## Database commands
+
+Use `pnpm db:generate`, `pnpm db:validate`, `pnpm db:check`, `pnpm db:deploy`, and `pnpm db:seed` for database setup. Review the target database before applying migrations. Keep credentials and certificate configuration in ignored local environment settings.
+
+`pnpm test` runs disposable PostgreSQL and infrastructure tests. The opt-in `pnpm db:verify` command requires `DATABASE_TEST_MODE=dedicated-development`; it exercises real database persistence with uniquely scoped temporary records and cleans up those records.
