@@ -7,6 +7,7 @@ import { Brand } from "@/components/layout/brand";
 import { buttonVariants } from "@/components/ui/button";
 import { routes } from "@/config/routes";
 import { site } from "@/config/site";
+import { RegistrationLink } from "@/components/landing/registration-link";
 
 export function SiteHeader() {
   const compact = usePathname().startsWith(routes.register);
@@ -26,22 +27,22 @@ export function SiteHeader() {
             Career Fair
           </Link>
         ) : (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <a
               href={site.mainWebsite}
-              className={buttonVariants({ variant: "ghost", size: "sm" })}
+              className={buttonVariants({
+                variant: "ghost",
+                size: "sm",
+                className: "hidden sm:inline-flex",
+              })}
             >
               Visit Exposition
               <ArrowUpRight aria-hidden="true" />
             </a>
-            {site.registrationOpen && (
-              <Link
-                href={routes.register}
-                className={buttonVariants({ size: "sm" })}
-              >
-                Pre-register
-              </Link>
-            )}
+            <RegistrationLink
+              compact
+              className="max-[380px]:px-3 max-[380px]:text-[10px]"
+            />
           </div>
         )}
       </nav>

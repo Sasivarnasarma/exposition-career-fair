@@ -3,7 +3,7 @@ import { Slot } from "radix-ui";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-export const buttonVariants = cva(
+const buttonStyles = cva(
   "inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-[background,color,box-shadow,transform] duration-200 active:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
@@ -24,6 +24,15 @@ export const buttonVariants = cva(
   },
 );
 
+export function buttonVariants(
+  options: VariantProps<typeof buttonStyles> & { className?: string } = {},
+) {
+  return cn(
+    buttonStyles({ variant: options.variant, size: options.size }),
+    options.className,
+  );
+}
+
 export function Button({
   className,
   variant,
@@ -32,7 +41,7 @@ export function Button({
   type,
   ...props
 }: ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & { asChild?: boolean }) {
+  VariantProps<typeof buttonStyles> & { asChild?: boolean }) {
   const Component = asChild ? Slot.Root : "button";
   return (
     <Component
