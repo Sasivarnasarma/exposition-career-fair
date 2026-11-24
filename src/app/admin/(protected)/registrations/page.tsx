@@ -283,7 +283,7 @@ async function Candidates({
       <div className="overflow-hidden rounded-3xl border border-border bg-card">
         {data.rows.length > 0 ? (
           <>
-            <div className="overflow-x-auto">
+            <div className="relative overflow-x-auto">
               <table className="w-full min-w-[850px] text-left text-sm">
                 <caption className="sr-only">
                   Candidate registrations, newest first. Open a candidate to

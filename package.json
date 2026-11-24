@@ -28,6 +28,10 @@
     "email:work": "node --conditions=react-server --import tsx scripts/work-emails.ts",
     "email:preview": "node --import tsx scripts/preview-emails.ts",
     "email:test": "node --conditions=react-server --import tsx scripts/test-email.ts",
+    "assets:report": "node --import tsx scripts/report-assets.ts",
+    "audit:security": "pnpm audit --audit-level=high",
+    "http:verify": "node --conditions=react-server --import tsx scripts/verify-http.ts",
+    "turnstile:verify": "node --conditions=react-server --import tsx scripts/verify-turnstile.ts",
     "admin:verify": "node --conditions=react-server --import tsx scripts/verify-admin.ts",
     "email:verify": "node --conditions=react-server --import tsx scripts/verify-email-lifecycle.ts"
   },

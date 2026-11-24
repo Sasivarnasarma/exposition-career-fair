@@ -285,6 +285,26 @@ async function main() {
       },
       { timeout: 20000, maxWait: 10000 },
     );
+    const aggregate = await getDashboardStats(adminHeaders, eventId);
+    assert.equal(aggregate.total, 253);
+    assert.equal(aggregate.verified, 1);
+    assert.equal(aggregate.institutionCount, 2);
+    assert.equal(
+      aggregate.breakdowns.positions.reduce((n, v) => n + v.count, 0),
+      254,
+    );
+    assert.equal(
+      aggregate.breakdowns.firstPreferences.reduce((n, v) => n + v.count, 0),
+      253,
+    );
+    assert.equal((await getDashboardStats(adminHeaders, otherEvent)).total, 1);
+    const missingEvent = await getDashboardStats(
+      adminHeaders,
+      `${scope}-missing`,
+    );
+    assert.equal(missingEvent.event, null);
+    assert.equal(missingEvent.total, 0);
+    assert.equal(missingEvent.breakdowns.positions.length, 0);
     const paged = await getCandidateList(adminHeaders, { eventId, page: 2 });
     assert.equal(paged.rows.length, 25);
     assert.equal(paged.total, 253);

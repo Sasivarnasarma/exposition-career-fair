@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { MotionProvider } from "@/components/providers/motion-provider";
+import { QaWebVitals } from "@/components/providers/qa-web-vitals";
 import "./globals.css";
 
 const inter = Inter({
@@ -37,6 +38,8 @@ export default function RootLayout({
           Skip to content
         </a>
         <MotionProvider>{children}</MotionProvider>
+        {process.env.NODE_ENV === "development" &&
+          process.env.EXPOSITION_QA === "true" && <QaWebVitals />}
       </body>
     </html>
   );

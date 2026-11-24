@@ -48,9 +48,23 @@ async function Receipt() {
             </div>
             <p className="text-sm leading-7 text-muted-foreground">
               Pre-registration does not guarantee an interview or a position.
-              Further event and email-verification details will follow when
-              available.
+              Your confirmation email includes a link to verify your email
+              address.
             </p>
+            <p className="mt-3 text-sm leading-7 text-muted-foreground">
+              Email delivery may take a few minutes. Your registration is
+              already saved, even if the message is delayed. If it hasn’t
+              arrived, request another verification email below.
+            </p>
+            <Link
+              href="/verify-email"
+              className={buttonVariants({
+                variant: "outline",
+                className: "mt-6",
+              })}
+            >
+              Verify or resend email
+            </Link>
             {site.whatsappCommunityUrl && (
               <a
                 href={site.whatsappCommunityUrl}

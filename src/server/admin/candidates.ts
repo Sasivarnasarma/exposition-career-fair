@@ -122,19 +122,16 @@ export async function getCandidateOptions(headers: Headers) {
       select: { id: true, name: true },
       orderBy: { year: "desc" },
     }),
-    db.registration.findMany({
-      distinct: ["institutionName"],
-      select: { institutionName: true },
+    db.registration.groupBy({
+      by: ["institutionName"],
       orderBy: { institutionName: "asc" },
     }),
-    db.registration.findMany({
-      distinct: ["facultyName"],
-      select: { facultyName: true },
+    db.registration.groupBy({
+      by: ["facultyName"],
       orderBy: { facultyName: "asc" },
     }),
-    db.registration.findMany({
-      distinct: ["degreeName"],
-      select: { degreeName: true },
+    db.registration.groupBy({
+      by: ["degreeName"],
       orderBy: { degreeName: "asc" },
     }),
     db.formOption.findMany({
@@ -233,92 +230,61 @@ export async function getDashboardStats(headers: Headers, eventId?: string) {
     throw new AppError("INVALID_REQUEST", 400, "Please select a valid event.");
   return getDatabase().$transaction(
     async (tx) => {
-      const where = { eventId: id };
-      const [
-        event,
-        total,
-        verified,
-        institutions,
-        faculties,
-        academicYears,
-        positions,
-        firstPreferences,
-        opportunities,
-        referrals,
-        recent,
-      ] = await Promise.all([
-        tx.eventEdition.findUnique({
-          where: { id },
-          select: {
-            id: true,
-            name: true,
-            registrationOpen: true,
-            registrationClosesAt: true,
-          },
-        }),
-        tx.registration.count({ where }),
-        tx.registration.count({
-          where: { ...where, emailVerifiedAt: { not: null } },
-        }),
-
-        tx.registration.groupBy({
-          by: ["institutionName"],
-          where,
-          _count: { _all: true },
-          orderBy: { _count: { institutionName: "desc" } },
-        }),
-        tx.registration.groupBy({
-          by: ["facultyName"],
-          where,
-          _count: { _all: true },
-          orderBy: { _count: { facultyName: "desc" } },
-        }),
-        tx.registration.groupBy({
-          by: ["academicYearId"],
-          where,
-          _count: { _all: true },
-        }),
-        tx.registrationPosition.groupBy({
-          by: ["positionId"],
-          where: { registration: where },
-          _count: { _all: true },
-        }),
-        tx.registration.groupBy({
-          by: ["firstPreferencePositionId"],
-          where,
-          _count: { _all: true },
-        }),
-        tx.registrationOpportunity.groupBy({
-          by: ["opportunityId"],
-          where: { registration: where },
-          _count: { _all: true },
-        }),
-        tx.registration.groupBy({
-          by: ["referralSourceId"],
-          where,
-          _count: { _all: true },
-        }),
-        tx.registration.findMany({
-          where,
-          select: candidateRowSelect,
-          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-          take: 5,
-        }),
-      ]);
-      const [options, positionLabels, opportunityLabels] = await Promise.all([
-        tx.formOption.findMany({ select: { id: true, label: true } }),
-        tx.careerPosition.findMany({ select: { id: true, label: true } }),
-        tx.opportunityType.findMany({ select: { id: true, label: true } }),
-      ]);
-      const lookup = (values: { id: string; label: string }[]) =>
-        new Map(values.map((v) => [v.id, v.label]));
-      const optionMap = lookup(options),
-        positionMap = lookup(positionLabels),
-        opportunityMap = lookup(opportunityLabels);
-      const sorted = (values: { label: string; count: number }[]) =>
-        values.sort(
-          (a, b) => b.count - a.count || a.label.localeCompare(b.label),
-        );
+      const event = await tx.eventEdition.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          name: true,
+          registrationOpen: true,
+          registrationClosesAt: true,
+        },
+      });
+      // Aggregate the same event snapshot in PostgreSQL, rather than making a
+      // separate network round trip for each count, group and label catalog.
+      const groups = await tx.$queryRaw<
+        { kind: string; label: string; count: number }[]
+      >`
+      WITH candidates AS MATERIALIZED (
+        SELECT "id", "institutionName", "facultyName", "academicYearId",
+          "firstPreferencePositionId", "referralSourceId", "emailVerifiedAt"
+        FROM "Registration" WHERE "eventId" = ${id}
+      )
+      SELECT 'totals'::text AS kind, 'accepted'::text AS label, COUNT(*)::integer AS count FROM candidates
+      UNION ALL
+      SELECT 'totals', 'verified', (COUNT(*) FILTER (WHERE "emailVerifiedAt" IS NOT NULL))::integer FROM candidates
+      UNION ALL
+      SELECT 'institutions', "institutionName", COUNT(*)::integer FROM candidates GROUP BY "institutionName"
+      UNION ALL
+      SELECT 'faculties', "facultyName", COUNT(*)::integer FROM candidates GROUP BY "facultyName"
+      UNION ALL
+      SELECT 'academicYears', o."label", COUNT(*)::integer FROM candidates c JOIN "FormOption" o ON o."id" = c."academicYearId" GROUP BY o."id", o."label"
+      UNION ALL
+      SELECT 'positions', p."label", COUNT(*)::integer FROM candidates c JOIN "RegistrationPosition" s ON s."registrationId" = c."id" JOIN "CareerPosition" p ON p."id" = s."positionId" GROUP BY p."id", p."label"
+      UNION ALL
+      SELECT 'firstPreferences', p."label", COUNT(*)::integer FROM candidates c JOIN "CareerPosition" p ON p."id" = c."firstPreferencePositionId" GROUP BY p."id", p."label"
+      UNION ALL
+      SELECT 'opportunities', o."label", COUNT(*)::integer FROM candidates c JOIN "RegistrationOpportunity" s ON s."registrationId" = c."id" JOIN "OpportunityType" o ON o."id" = s."opportunityId" GROUP BY o."id", o."label"
+      UNION ALL
+      SELECT 'referrals', o."label", COUNT(*)::integer FROM candidates c JOIN "FormOption" o ON o."id" = c."referralSourceId" GROUP BY o."id", o."label"
+    `;
+      const recent = await tx.registration.findMany({
+        where: { eventId: id },
+        select: candidateRowSelect,
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        take: 5,
+      });
+      const entries = (kind: string) =>
+        groups
+          .filter((g) => g.kind === kind)
+          .map(({ label, count }) => ({ label, count }))
+          .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+      const total =
+        groups.find((g) => g.kind === "totals" && g.label === "accepted")
+          ?.count ?? 0;
+      const verified =
+        groups.find((g) => g.kind === "totals" && g.label === "verified")
+          ?.count ?? 0;
+      const institutions = entries("institutions");
       return {
         event: event
           ? {
@@ -336,45 +302,13 @@ export async function getDashboardStats(headers: Headers, eventId?: string) {
         unverified: total - verified,
         institutionCount: institutions.length,
         breakdowns: {
-          institutions: institutions.map((v) => ({
-            label: v.institutionName,
-            count: v._count._all,
-          })),
-          faculties: faculties.map((v) => ({
-            label: v.facultyName,
-            count: v._count._all,
-          })),
-          academicYears: sorted(
-            academicYears.map((v) => ({
-              label: optionMap.get(v.academicYearId) ?? "Unavailable",
-              count: v._count._all,
-            })),
-          ),
-          positions: sorted(
-            positions.map((v) => ({
-              label: positionMap.get(v.positionId) ?? "Unavailable",
-              count: v._count._all,
-            })),
-          ),
-          firstPreferences: sorted(
-            firstPreferences.map((v) => ({
-              label:
-                positionMap.get(v.firstPreferencePositionId) ?? "Unavailable",
-              count: v._count._all,
-            })),
-          ),
-          opportunities: sorted(
-            opportunities.map((v) => ({
-              label: opportunityMap.get(v.opportunityId) ?? "Unavailable",
-              count: v._count._all,
-            })),
-          ),
-          referrals: sorted(
-            referrals.map((v) => ({
-              label: optionMap.get(v.referralSourceId) ?? "Unavailable",
-              count: v._count._all,
-            })),
-          ),
+          institutions,
+          faculties: entries("faculties"),
+          academicYears: entries("academicYears"),
+          positions: entries("positions"),
+          firstPreferences: entries("firstPreferences"),
+          opportunities: entries("opportunities"),
+          referrals: entries("referrals"),
         },
         recent: recent.map(serializeCandidateRow),
       };
