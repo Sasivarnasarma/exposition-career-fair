@@ -329,7 +329,7 @@ async function main() {
     const team = await request("/admin/admins", {
       headers: { cookie: superCookie },
     });
-    assert.ok((await team.text()).includes("The people behind the fair"));
+    assert.match(await team.text(), /<h1[^>]*>Team access<\/h1>/);
     step = "http-csv-export";
     const exportPath = `/api/admin/registrations/export?eventId=${scope}&scope=filtered`;
     const noSession = await request(exportPath);

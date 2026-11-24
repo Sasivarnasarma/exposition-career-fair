@@ -16,13 +16,13 @@ export function Brand() {
         height={39}
         alt="Exposition Issue 22"
         priority
-        className="h-auto w-36 sm:w-44"
+        className="h-auto w-32 sm:w-44"
       />
       <span
         aria-hidden="true"
-        className="text-[9px] font-medium tracking-[0.3em] text-muted-foreground uppercase"
+        className="text-[11px] font-medium tracking-wide text-muted-foreground"
       >
-        Career Fair · {site.year}
+        Career Fair {site.year}
       </span>
     </Link>
   );

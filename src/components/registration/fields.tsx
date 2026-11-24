@@ -35,8 +35,11 @@ export function Field({
   const { register } = useFormContext<RegistrationDraft>();
   const message = useFieldMessage(name);
   return (
-    <div className="space-y-2">
-      <label htmlFor={`field-${name}`} className="text-sm font-medium">
+    <div className="grid min-w-0 gap-3">
+      <label
+        htmlFor={`field-${name}`}
+        className="block text-sm leading-6 font-medium"
+      >
         {label}
         {optional && (
           <span className="ml-2 text-xs font-normal text-muted-foreground">
@@ -50,7 +53,9 @@ export function Field({
         {...props}
         aria-invalid={!!message}
         aria-describedby={
-          message ? `error-${name}` : hint ? `hint-${name}` : undefined
+          [hint && `hint-${name}`, message && `error-${name}`]
+            .filter(Boolean)
+            .join(" ") || undefined
         }
       />
       {hint && (
@@ -83,8 +88,11 @@ export function SelectField({
   const { register } = useFormContext<RegistrationDraft>();
   const message = useFieldMessage(name);
   return (
-    <div className="space-y-2">
-      <label htmlFor={`field-${name}`} className="text-sm font-medium">
+    <div className="grid min-w-0 gap-3">
+      <label
+        htmlFor={`field-${name}`}
+        className="block text-sm leading-6 font-medium"
+      >
         {label}
       </label>
       <select
@@ -115,30 +123,39 @@ export function AcademicField({
   label,
   options,
   onParentChange,
+  suggestions = true,
 }: {
   name: FieldPath<RegistrationDraft>;
   idName: FieldPath<RegistrationDraft>;
   label: string;
   options: { id: string; name: string }[];
   onParentChange?: () => void;
+  suggestions?: boolean;
 }) {
   const list = useId();
   const { register, setValue } = useFormContext<RegistrationDraft>();
   const field = register(name);
   const message = useFieldMessage(name);
   return (
-    <div className="space-y-2">
-      <label htmlFor={`field-${name}`} className="text-sm font-medium">
+    <div className="grid min-w-0 gap-3">
+      <label
+        htmlFor={`field-${name}`}
+        className="block text-sm leading-6 font-medium"
+      >
         {label}
       </label>
       <Input
         {...field}
         id={`field-${name}`}
-        list={list}
+        list={suggestions ? list : undefined}
         autoComplete="off"
         maxLength={200}
         aria-invalid={!!message}
-        aria-describedby={`hint-${name}${message ? ` error-${name}` : ""}`}
+        aria-describedby={
+          [suggestions && `hint-${name}`, message && `error-${name}`]
+            .filter(Boolean)
+            .join(" ") || undefined
+        }
         onChange={(event) => {
           void field.onChange(event);
           const match = options.find(
@@ -150,17 +167,22 @@ export function AcademicField({
           onParentChange?.();
         }}
       />
-      <datalist id={list}>
-        {options.map((o) => (
-          <option key={o.id} value={o.name} />
-        ))}
-      </datalist>
-      <p
-        id={`hint-${name}`}
-        className="text-xs leading-5 text-muted-foreground"
-      >
-        Search the suggestions or type the full name if it is not listed.
-      </p>
+      {suggestions && (
+        <>
+          <datalist id={list}>
+            {options.map((option) => (
+              <option key={option.name} value={option.name} />
+            ))}
+          </datalist>
+          <p
+            id={`hint-${name}`}
+            className="text-xs leading-5 text-muted-foreground"
+          >
+            Choose a suggestion or type your institution&apos;s full name if it
+            is not listed.
+          </p>
+        </>
+      )}
       {message && (
         <p id={`error-${name}`} className="text-sm text-destructive">
           {message}

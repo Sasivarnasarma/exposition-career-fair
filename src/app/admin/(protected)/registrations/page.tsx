@@ -36,7 +36,7 @@ const filterKeys = [
   "verified",
 ] as const;
 const selectStyle =
-  "min-h-11 w-full min-w-0 rounded-xl border border-input bg-background px-3 py-2 text-sm text-foreground";
+  "min-h-11 w-full min-w-0 rounded-xl border border-input bg-background px-3 py-2 text-base text-foreground sm:text-sm";
 
 function Field({
   label,
@@ -133,13 +133,12 @@ async function Candidates({
     <section className="space-y-7">
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
-          <p className="eyebrow">Every connection starts here</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-            Candidate directory<span className="text-primary">.</span>
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+            Candidates
           </h1>
           <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
-            Explore registrations, understand career interests, and prepare your
-            event with a clear view of every candidate.
+            Search registrations, review candidate details and export the
+            records you need.
           </p>
         </div>
         <div className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-5 py-3">
@@ -148,7 +147,7 @@ async function Candidates({
             <p className="text-2xl font-semibold tabular-nums">
               {data.total.toLocaleString("en")}
             </p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {filtered ? "Matching candidates" : "Event registrations"}
             </p>
           </div>
@@ -158,7 +157,7 @@ async function Candidates({
         key={query.toString()}
         action="/admin/registrations"
         method="get"
-        className="rounded-3xl border border-border bg-card p-5 sm:p-6"
+        className="rounded-2xl border border-border bg-card p-5 sm:p-6"
       >
         <div className="grid items-end gap-4 md:grid-cols-[minmax(0,1fr)_minmax(12rem,0.45fr)_auto]">
           <label className="grid gap-2 text-xs font-medium text-muted-foreground">
@@ -289,7 +288,7 @@ async function Candidates({
                   Candidate registrations, newest first. Open a candidate to
                   view their complete registration.
                 </caption>
-                <thead className="border-b border-border bg-secondary/35 text-[10px] tracking-wider text-muted-foreground uppercase">
+                <thead className="border-b border-border bg-secondary/35 text-xs text-muted-foreground">
                   <tr>
                     {[
                       "Candidate",
@@ -326,7 +325,7 @@ async function Candidates({
                         <p className="mt-1 truncate text-xs text-muted-foreground">
                           {row.email}
                         </p>
-                        <p className="mt-2 font-mono text-[10px] text-primary/80">
+                        <p className="mt-2 font-mono text-xs text-primary/80">
                           {row.reference}
                         </p>
                       </td>
@@ -337,7 +336,7 @@ async function Candidates({
                         <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                           {row.degreeName}
                         </p>
-                        <p className="mt-1 text-[10px] text-muted-foreground">
+                        <p className="mt-1 text-xs text-muted-foreground">
                           {row.academicYearLabel}
                         </p>
                       </td>
@@ -348,8 +347,8 @@ async function Candidates({
                         <span
                           className={
                             row.emailVerifiedAt
-                              ? "inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-[10px] text-primary"
-                              : "inline-flex rounded-full border border-border px-2.5 py-1 text-[10px] text-muted-foreground"
+                              ? "inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs text-primary"
+                              : "inline-flex rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground"
                           }
                         >
                           {row.emailVerifiedAt && (
@@ -445,12 +444,12 @@ async function Candidates({
             <h2 className="mt-5 text-xl font-semibold">
               {filtered
                 ? "No candidates match these filters"
-                : "Your next chapter starts here"}
+                : "No registrations yet"}
             </h2>
             <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
               {filtered
                 ? "Try a broader search or clear some filters to see more candidates."
-                : "Registrations will appear here once candidates complete their application. There are no registrations for this event yet."}
+                : "Registrations for this event will appear here after candidates submit their details. You can choose another event above."}
             </p>
             {filtered && (
               <Link

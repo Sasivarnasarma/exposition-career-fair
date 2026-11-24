@@ -17,10 +17,10 @@ export default function AdminLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="site-container flex items-center justify-between gap-4 py-7">
+      <header className="site-container flex items-center justify-between gap-4 py-6">
         <Brand />
-        <span className="text-xs tracking-wider text-muted-foreground uppercase">
-          Organiser access
+        <span className="rounded-full border border-border px-3 py-2 text-xs text-muted-foreground">
+          Organiser workspace
         </span>
       </header>
       {children}

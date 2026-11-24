@@ -15,11 +15,11 @@ async function AccessBoundary({ children }: { children: React.ReactNode }) {
   const admin = await authenticatedAdmin(await headers());
   if (!admin) redirect("/admin/login?reason=session");
   return (
-    <div className="site-container grid flex-1 gap-6 border-t border-border pt-5 pb-10 lg:grid-cols-[13.5rem_minmax(0,1fr)] lg:gap-10 lg:pt-8">
+    <div className="site-container grid flex-1 gap-6 border-t border-border pt-5 pb-10 lg:grid-cols-[12.5rem_minmax(0,1fr)] lg:gap-12 lg:pt-8">
       <aside className="flex min-w-0 flex-col gap-5 lg:sticky lg:top-8 lg:self-start">
         <div className="hidden px-4 lg:block">
-          <p className="eyebrow">The organiser desk</p>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="text-sm font-medium text-foreground">Your workspace</p>
+          <p className="mt-1 text-xs text-muted-foreground">
             Career Fair workspace
           </p>
         </div>

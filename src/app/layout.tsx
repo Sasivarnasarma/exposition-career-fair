@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import { MotionProvider } from "@/components/providers/motion-provider";
 import { QaWebVitals } from "@/components/providers/qa-web-vitals";
 import "./globals.css";
 
-const inter = Inter({
+const interfaceFont = DM_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-interface",
   display: "swap",
 });
 
@@ -28,7 +28,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`dark ${inter.variable}`}
+      className={`dark ${interfaceFont.variable}`}
     >
       <body className="min-h-screen antialiased">
         <a

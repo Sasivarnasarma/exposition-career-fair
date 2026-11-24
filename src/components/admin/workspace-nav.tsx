@@ -2,12 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  UsersRound,
-  ShieldCheck,
-  ArrowUpRight,
-} from "lucide-react";
+import { LayoutDashboard, UsersRound, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function WorkspaceNav({ superAdmin }: { superAdmin: boolean }) {
@@ -22,7 +17,7 @@ export function WorkspaceNav({ superAdmin }: { superAdmin: boolean }) {
   return (
     <nav
       aria-label="Organiser workspace"
-      className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible"
+      className="grid auto-cols-fr grid-flow-col gap-1 rounded-xl bg-card p-1 lg:flex lg:flex-col lg:gap-2 lg:rounded-none lg:bg-transparent lg:p-0"
     >
       {links.map(({ href, label, icon: Icon }) => {
         const active =
@@ -34,21 +29,14 @@ export function WorkspaceNav({ superAdmin }: { superAdmin: boolean }) {
             prefetch={false}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "group flex min-h-12 shrink-0 items-center gap-3 rounded-xl border px-4 py-3 text-sm font-medium transition-colors",
+              "group relative flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 rounded-lg border px-2 py-3 text-xs font-medium transition-colors lg:min-h-12 lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:text-sm",
               active
-                ? "border-primary/20 bg-primary/10 text-primary"
+                ? "border-primary/20 bg-primary/10 text-primary lg:before:absolute lg:before:inset-y-3 lg:before:left-0 lg:before:w-0.5 lg:before:rounded-full lg:before:bg-primary"
                 : "border-transparent text-muted-foreground hover:bg-secondary hover:text-foreground",
             )}
           >
             <Icon aria-hidden className="size-4" />
             {label}
-            <ArrowUpRight
-              aria-hidden
-              className={cn(
-                "ml-auto hidden size-3.5 lg:block",
-                active ? "opacity-100" : "opacity-0 group-hover:opacity-100",
-              )}
-            />
           </Link>
         );
       })}

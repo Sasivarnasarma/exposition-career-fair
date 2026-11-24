@@ -192,7 +192,7 @@ async function Registration({ params }: { params: Promise<{ id: string }> }) {
             icon={<BriefcaseBusiness aria-hidden className="size-5" />}
           >
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
-              <p className="text-[10px] tracking-wider text-primary uppercase">
+              <p className="text-xs font-medium text-primary">
                 First preference
               </p>
               <p className="mt-2 text-lg font-semibold">
@@ -334,7 +334,7 @@ async function Registration({ params }: { params: Promise<{ id: string }> }) {
                     >
                       {stateLabels[job.state] ?? "Unavailable"}
                     </p>
-                    <p className="mt-1.5 text-[10px] text-muted-foreground">
+                    <p className="mt-1.5 text-xs text-muted-foreground">
                       {job.attempts} attempt{job.attempts === 1 ? "" : "s"}
                       {job.sentAt ? ` · ${dateTime(job.sentAt)}` : ""}
                     </p>
@@ -346,7 +346,7 @@ async function Registration({ params }: { params: Promise<{ id: string }> }) {
                 No email activity recorded.
               </p>
             )}
-            <p className="mt-5 flex gap-2 border-t border-border pt-4 text-[11px] leading-5 text-muted-foreground">
+            <p className="mt-5 flex gap-2 border-t border-border pt-4 text-xs leading-5 text-muted-foreground">
               <CircleHelp aria-hidden className="mt-1 size-3.5 shrink-0" />
               Provider acceptance does not confirm inbox delivery or candidate
               verification.

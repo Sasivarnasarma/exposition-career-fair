@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-
 import {
   ArrowDown,
   ArrowUpRight,
   MessagesSquare,
-  Sparkle,
   UsersRound,
 } from "lucide-react";
 import {
@@ -12,8 +10,6 @@ import {
   EventSlideshow,
   NextPhotoPreview,
 } from "@/components/landing/event-slideshow";
-
-import { Reveal } from "@/components/landing/reveal";
 import { RegistrationLink } from "@/components/landing/registration-link";
 import { site } from "@/config/site";
 
@@ -33,217 +29,171 @@ export default function Home() {
     <main id="main-content" tabIndex={-1}>
       <section
         aria-labelledby="hero-title"
-        className="relative site-container pt-12 pb-10 sm:pt-16 lg:pt-20"
+        className="site-container pt-10 pb-14 sm:pt-16 lg:pt-20 lg:pb-20"
       >
-        <div
-          aria-hidden="true"
-          className="hero-halo pointer-events-none absolute inset-0 -z-10"
-        />
-        <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_1fr] lg:gap-10 xl:gap-16">
+        <div className="grid items-center gap-12 lg:grid-cols-[1fr_1.05fr] lg:gap-14 xl:gap-20">
           <div className="min-w-0">
-            <div className="hero-enter mb-7 flex items-center gap-3 text-[10px] font-semibold tracking-[0.2em] text-muted-foreground uppercase sm:text-xs">
-              <span aria-hidden="true" className="h-px w-8 bg-primary/70" />
-              Exposition {site.edition} · Career Fair {site.year}
-            </div>
+            <p className="hero-enter mb-6 flex items-center gap-3 text-sm text-primary">
+              <span aria-hidden className="h-px w-8 bg-primary/60" />
+              Exposition Career Fair {site.year}
+            </p>
             <h1
               id="hero-title"
-              className="hero-enter hero-enter-1 text-[clamp(2.7rem,5.1vw,4.6rem)] leading-[1.06] font-extrabold tracking-[-0.055em]"
+              className="hero-enter hero-enter-1 max-w-[13ch] font-display text-[clamp(2.75rem,5.2vw,5.1rem)] leading-[1.06]"
             >
-              Your next career
-              <br />
-              <span className="gold-text">opportunity</span>
-              <br />
-              starts here.
+              Your next chapter starts with a conversation.
             </h1>
-            <p className="hero-enter hero-enter-2 mt-7 max-w-lg text-sm leading-7 text-muted-foreground sm:text-base sm:leading-8">
-              Exposition Career Fair connects aspiring undergraduates and fresh
-              graduates with the professional world, creating opportunities to
-              explore career paths, engage with potential employers and discover
-              where your skills can take you.
+            <p className="hero-enter hero-enter-2 mt-7 max-w-[48ch] text-base leading-8 text-muted-foreground">
+              Explore career paths, meet potential employers and discover where
+              your skills could take you.
             </p>
-            <div className="hero-enter hero-enter-3 mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+            <p className="hero-enter hero-enter-2 mt-3 text-sm leading-7 text-muted-foreground">
+              For undergraduates and recent graduates.
+            </p>
+            <div className="hero-enter hero-enter-3 mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
               <RegistrationLink />
               <a
-                href="#previous-fair"
-                className="group inline-flex min-h-11 items-center gap-2 rounded-lg text-sm text-muted-foreground transition-colors hover:text-foreground"
+                href="#fair-gallery"
+                className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm text-foreground transition-colors hover:text-primary"
               >
-                A look back
-                <ArrowDown
-                  aria-hidden="true"
-                  className="size-4 transition-transform group-hover:translate-y-1 motion-reduce:transform-none"
-                />
+                View photos{" "}
+                <ArrowDown aria-hidden className="size-4 lg:-rotate-90" />
               </a>
             </div>
-            {!site.registrationOpen && (
-              <p className="hero-enter hero-enter-3 mt-3 text-xs text-muted-foreground">
-                Pre-registration opens soon.
-              </p>
-            )}
-            <div className="hero-enter hero-enter-4 mt-10 flex items-center gap-4 border-t border-border pt-6">
-              <span aria-hidden="true" className="h-8 w-px bg-primary/60" />
-              <div>
-                <p className="text-[10px] tracking-[0.16em] text-muted-foreground uppercase">
-                  In collaboration with
-                </p>
-                <p className="mt-1 text-base font-semibold text-primary">
-                  {site.collaborator}
-                </p>
-                <p className="mt-2 text-xs leading-6 text-muted-foreground">
-                  Organised by IMSSA · {site.university}
-                </p>
-              </div>
-            </div>
+            <Partnerships className="hidden lg:grid" />
           </div>
           <EventGallery>
-            <Reveal
-              delay={0.12}
-              className="relative min-w-0 pb-8 pl-5 sm:pl-9 lg:pt-6"
+            <div
+              id="fair-gallery"
+              className="hero-enter hero-enter-2 relative min-w-0 scroll-mt-8 pb-14 pl-4 sm:pb-16 sm:pl-8"
             >
-              <div
-                aria-hidden="true"
-                className="absolute top-0 right-3 h-[80%] w-[88%] rotate-[5deg] rounded-[2rem] border border-primary/25 bg-primary/3"
-              />
-              <figure className="group relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-card shadow-2xl shadow-black/40">
-                <div className="relative aspect-[1/1.05] overflow-hidden sm:aspect-[1.15/1] lg:aspect-[1/1.05]">
+              <figure className="group relative overflow-hidden rounded-[1.5rem] border border-border bg-card">
+                <div className="relative aspect-[4/5] overflow-hidden sm:aspect-[1.1/1] lg:aspect-[4/5]">
                   <EventSlideshow />
                   <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/0 to-black/10"
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/5"
                   />
                 </div>
-                <figcaption className="pointer-events-none absolute right-4 bottom-6 left-[42%] rounded-xl bg-black/80 p-2 text-white sm:right-6 sm:p-3">
-                  <span className="mb-3 inline-flex items-center gap-2 text-[10px] font-medium tracking-[0.17em] uppercase">
-                    <span
-                      aria-hidden="true"
-                      className="size-1.5 rounded-full bg-primary"
-                    />
+                <figcaption className="pointer-events-none absolute right-5 bottom-8 left-[43%] text-white sm:right-7 sm:bottom-10">
+                  <p className="mb-2 text-xs text-white/85">
                     From the previous fair
-                  </span>
-                  <p className="max-w-[18ch] text-sm leading-tight font-semibold tracking-tight min-[400px]:text-lg sm:text-2xl">
-                    Real conversations.
-                    <br />
-                    New perspectives.
+                  </p>
+                  <p className="max-w-[16ch] text-lg leading-snug font-medium sm:text-2xl">
+                    Real conversations. New perspectives.
                   </p>
                 </figcaption>
               </figure>
-              <Reveal
-                hover
-                delay={0.22}
-                className="absolute -bottom-4 -left-1 w-[44%] sm:-bottom-6 sm:left-0"
-              >
+              <div className="absolute bottom-0 left-0 w-[42%]">
                 <NextPhotoPreview />
-              </Reveal>
-              <div
-                aria-hidden="true"
-                className="absolute -top-2 right-0 flex size-16 items-center justify-center rounded-full border border-primary/30 bg-background shadow-xl sm:size-20"
-              >
-                <Sparkle
-                  className="hero-spark size-8 text-primary sm:size-10"
-                  strokeWidth={1}
-                />
               </div>
-              <p className="mt-5 ml-auto max-w-[48%] text-right text-[10px] leading-5 text-muted-foreground sm:text-xs">
-                One conversation can open
-                <br />a whole new direction.
+              <p className="mt-4 ml-auto max-w-[50%] text-right text-xs leading-5 text-muted-foreground">
+                A look back at the people and possibilities.
               </p>
-            </Reveal>
+            </div>
           </EventGallery>
         </div>
-        <Reveal
-          className="mt-16 border-t border-b border-border py-7 sm:mt-20"
-          delay={0.1}
-        >
-          <div
-            id="previous-fair"
-            className="grid scroll-mt-8 gap-7 sm:grid-cols-[1fr_1fr_1fr] sm:items-center sm:gap-6"
-          >
+        <Partnerships className="grid lg:hidden" />
+      </section>
+      <section
+        id="previous-fair"
+        aria-labelledby="previous-heading"
+        className="site-container scroll-mt-8 border-y border-border py-10 sm:py-12"
+      >
+        <div className="grid gap-8 sm:grid-cols-[1.25fr_1fr_1fr] sm:items-center sm:gap-10">
+          <div>
+            <p className="text-sm text-primary">The previous Career Fair</p>
+            <h2
+              id="previous-heading"
+              className="mt-3 font-display text-3xl leading-tight sm:text-4xl"
+            >
+              A fair full of first conversations.
+            </h2>
+          </div>
+          <div className="flex items-start gap-4 sm:border-l sm:border-border sm:pl-8">
+            <UsersRound
+              aria-hidden
+              className="mt-2 size-6 shrink-0 text-primary"
+              strokeWidth={1.5}
+            />
             <div>
-              <p className="eyebrow">The previous Career Fair</p>
-              <h2 className="mt-2 text-xl font-semibold tracking-tight">
-                A foundation to build on.
-              </h2>
-            </div>
-            <div className="flex items-center gap-5 sm:justify-center sm:border-l sm:border-border">
-              <UsersRound
-                aria-hidden="true"
-                className="size-7 shrink-0 text-primary/80"
-                strokeWidth={1.25}
-              />
-              <div>
-                <p className="text-4xl font-semibold tracking-[-0.05em] text-primary sm:text-5xl">
-                  300<span className="text-2xl">+</span>
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-                  Student registrations
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-5 sm:justify-center sm:border-l sm:border-border">
-              <MessagesSquare
-                aria-hidden="true"
-                className="size-7 shrink-0 text-primary/80"
-                strokeWidth={1.25}
-              />
-              <div>
-                <p className="text-4xl font-semibold tracking-[-0.05em] text-primary sm:text-5xl">
-                  400<span className="text-2xl">+</span>
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-                  Interviews facilitated
-                </p>
-              </div>
+              <p className="text-4xl font-medium tracking-tight tabular-nums">
+                300+
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Student registrations
+              </p>
             </div>
           </div>
-          <p className="mt-5 text-[11px] leading-5 text-muted-foreground">
-            Figures and photographs reflect the previous event. Upcoming
-            opportunities and participating employers will be announced
-            separately.
-          </p>
-        </Reveal>
+          <div className="flex items-start gap-4 sm:border-l sm:border-border sm:pl-8">
+            <MessagesSquare
+              aria-hidden
+              className="mt-2 size-6 shrink-0 text-primary"
+              strokeWidth={1.5}
+            />
+            <div>
+              <p className="text-4xl font-medium tracking-tight tabular-nums">
+                400+
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Interviews facilitated
+              </p>
+            </div>
+          </div>
+        </div>
+        <p className="mt-7 max-w-3xl text-xs leading-6 text-muted-foreground">
+          Figures and photographs reflect the previous event. Upcoming
+          opportunities and participating employers will be announced
+          separately.
+        </p>
       </section>
       <section
         aria-labelledby="closing-title"
-        className="site-container py-7 sm:py-10"
+        className="site-container py-14 sm:py-20"
       >
-        <Reveal className="relative overflow-hidden rounded-[2rem] border border-primary/20 bg-card px-6 py-10 sm:px-10 lg:px-12">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -top-32 -right-24 size-96 rounded-full border border-primary/10"
-          />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -top-20 -right-12 size-72 rounded-full border border-primary/10"
-          />
-          <div className="relative flex flex-col justify-between gap-8 lg:flex-row lg:items-center">
-            <div className="max-w-xl">
-              <p className="eyebrow">Exposition Career Fair {site.year}</p>
-              <h2
-                id="closing-title"
-                className="mt-4 text-3xl leading-tight font-semibold tracking-[-0.04em] sm:text-4xl"
-              >
-                Ready to take your
-                <br className="hidden sm:block" /> next career step
-                <span className="text-primary">?</span>
-              </h2>
-              <p className="mt-4 text-sm leading-7 text-muted-foreground">
-                {site.registrationOpen
-                  ? "Pre-register now and stay connected with the opportunities ahead."
-                  : "Stay connected with the opportunities ahead. Pre-registration will open soon."}
-              </p>
-            </div>
-            <div className="flex flex-col items-start gap-3">
-              <RegistrationLink />
-              <a
-                href={site.mainWebsite}
-                className="inline-flex min-h-11 items-center gap-2 rounded-lg text-xs text-muted-foreground transition-colors hover:text-primary"
-              >
-                Discover the Exposition story
-                <ArrowUpRight aria-hidden="true" className="size-3.5" />
-              </a>
-            </div>
+        <div className="grid gap-8 rounded-2xl border border-border bg-card px-6 py-9 sm:px-10 sm:py-12 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-16">
+          <div className="max-w-2xl">
+            <h2
+              id="closing-title"
+              className="font-display text-3xl leading-tight sm:text-5xl"
+            >
+              Make room for your next opportunity.
+            </h2>
+            <p className="mt-4 max-w-[56ch] text-sm leading-7 text-muted-foreground">
+              {site.registrationOpen
+                ? "Tell the organising team about yourself and the opportunities you are looking for."
+                : "Explore what you will need to pre-register. Submission will be available when registration opens."}
+            </p>
           </div>
-        </Reveal>
+          <div className="flex flex-col items-start gap-3">
+            <RegistrationLink />
+            <a
+              href={site.mainWebsite}
+              className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm text-muted-foreground hover:text-primary"
+            >
+              Discover Exposition{" "}
+              <ArrowUpRight aria-hidden className="size-4" />
+            </a>
+          </div>
+        </div>
       </section>
     </main>
+  );
+}
+
+function Partnerships({ className }: { className: string }) {
+  return (
+    <div
+      className={`mt-10 grid-cols-2 gap-4 border-t border-border pt-6 ${className}`}
+    >
+      <div>
+        <p className="text-xs text-muted-foreground">In collaboration with</p>
+        <p className="mt-1 text-sm font-medium">{site.collaborator}</p>
+      </div>
+      <div>
+        <p className="text-xs text-muted-foreground">Organised by IMSSA</p>
+        <p className="mt-1 text-sm font-medium">{site.university}</p>
+      </div>
+    </div>
   );
 }

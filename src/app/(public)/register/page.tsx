@@ -5,6 +5,7 @@ import { connection } from "next/server";
 import Link from "next/link";
 import { registrationOptions } from "@/server/registrations/options";
 import { RegistrationForm } from "@/components/registration/form";
+import { RegistrationSkeleton } from "@/components/registration/loading-skeleton";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 export const metadata: Metadata = {
@@ -65,7 +66,7 @@ function Status({
     >
       <Card className="max-w-2xl">
         <p className="eyebrow">Exposition Career Fair</p>
-        <h1 className="mt-4 text-3xl font-bold">{title}</h1>
+        <h1 className="mt-4 font-display text-4xl leading-tight">{title}</h1>
         <p className="mt-4 leading-8 text-muted-foreground">{description}</p>
         <Link
           href="/"
@@ -79,14 +80,7 @@ function Status({
 }
 export default function RegistrationPage() {
   return (
-    <Suspense
-      fallback={
-        <Status
-          title="Preparing your next step..."
-          description="Loading registration details."
-        />
-      }
-    >
+    <Suspense fallback={<RegistrationSkeleton />}>
       <Registration />
     </Suspense>
   );

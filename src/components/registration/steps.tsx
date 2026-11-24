@@ -1,6 +1,7 @@
 "use client";
-import Link from "next/link";
+import { PrivacyNoticeTrigger } from "@/components/privacy/notice-dialog";
 import { site } from "@/config/site";
+import { universitySuggestions } from "@/config/university-suggestions";
 import { useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { ChevronDown, HeartHandshake } from "lucide-react";
@@ -33,7 +34,6 @@ export function PersonalStep({ options }: { options: RegistrationOptions }) {
         type="tel"
         autoComplete="tel"
         maxLength={30}
-        hint="Include your country code if using an international number."
       />
       <div className="sm:col-span-2">
         <SelectField
@@ -63,14 +63,14 @@ export function PersonalStep({ options }: { options: RegistrationOptions }) {
 }
 export function AcademicStep({ options }: { options: RegistrationOptions }) {
   const { control, setValue } = useFormContext<RegistrationDraft>();
-  const [institutionId, facultyId, year] = useWatch({
-    control,
-    name: [
-      "academic.institutionId",
-      "academic.facultyId",
-      "academic.academicYearId",
-    ],
-  });
+  const year = useWatch({ control, name: "academic.academicYearId" });
+  const universities = universitySuggestions.map((name) => ({
+    name,
+    id:
+      options.institutions.find(
+        (option) => option.name.toLowerCase() === name.toLowerCase(),
+      )?.id || "",
+  }));
   return (
     <div className="grid gap-6 sm:grid-cols-2">
       <div className="sm:col-span-2">
@@ -78,7 +78,7 @@ export function AcademicStep({ options }: { options: RegistrationOptions }) {
           name="academic.institutionName"
           idName="academic.institutionId"
           label="University or institution"
-          options={options.institutions}
+          options={universities}
           onParentChange={() => {
             for (const path of [
               "academic.facultyId",
@@ -94,9 +94,8 @@ export function AcademicStep({ options }: { options: RegistrationOptions }) {
         name="academic.facultyName"
         idName="academic.facultyId"
         label="Faculty or school"
-        options={options.faculties.filter(
-          (o) => o.institutionId === institutionId,
-        )}
+        options={[]}
+        suggestions={false}
         onParentChange={() => {
           setValue("academic.degreeProgrammeId", "", { shouldDirty: true });
           setValue("academic.degreeName", "", { shouldDirty: true });
@@ -106,7 +105,8 @@ export function AcademicStep({ options }: { options: RegistrationOptions }) {
         name="academic.degreeName"
         idName="academic.degreeProgrammeId"
         label="Degree programme"
-        options={options.programmes.filter((o) => o.facultyId === facultyId)}
+        options={[]}
+        suggestions={false}
       />
       <div className="sm:col-span-2">
         <Field
@@ -135,7 +135,7 @@ export function AcademicStep({ options }: { options: RegistrationOptions }) {
         hint={
           year === "year-graduate"
             ? "Enter the year you completed your degree."
-            : "Enter the year you expect to complete your degree."
+            : undefined
         }
       />
       <Field
@@ -174,15 +174,13 @@ export function PreferencesStep({ options }: { options: RegistrationOptions }) {
       "preferences.opportunityIds",
     ],
   });
-  const [expanded, setExpanded] = useState<string[]>([
-    options.categories[0]?.id || "",
-  ]);
+  const [expanded, setExpanded] = useState<string | null>(
+    options.categories.find((category) => category.positions.length)?.id ??
+      null,
+  );
   const [notice, setNotice] = useState("");
   const all = options.categories.flatMap((c) => c.positions);
-  function togglePosition(id: string) {
-    const next = selected.includes(id)
-      ? selected.filter((value) => value !== id)
-      : [...selected, id];
+  function updatePositions(next: string[]) {
     setValue("preferences.positionIds", next, { shouldDirty: true });
     if (!next.includes(first)) {
       setValue("preferences.firstPreferencePositionId", "", {
@@ -193,6 +191,18 @@ export function PreferencesStep({ options }: { options: RegistrationOptions }) {
           "Your first preference was removed. Choose another from your selected positions.",
         );
     }
+  }
+  function togglePosition(id: string) {
+    updatePositions(
+      selected.includes(id)
+        ? selected.filter((value) => value !== id)
+        : [...selected, id],
+    );
+  }
+  function changeOtherPosition(value: string) {
+    setValue("preferences.otherPosition", value, { shouldDirty: true });
+    const withoutOther = selected.filter((id) => id !== "other");
+    updatePositions(value.trim() ? [...withoutOther, "other"] : withoutOther);
   }
   return (
     <div className="space-y-8">
@@ -211,7 +221,7 @@ export function PreferencesStep({ options }: { options: RegistrationOptions }) {
           {options.categories
             .filter((c) => c.positions.length)
             .map((category) => {
-              const open = expanded.includes(category.id);
+              const open = expanded === category.id;
               const count = category.positions.filter((p) =>
                 selected.includes(p.id),
               ).length;
@@ -224,9 +234,7 @@ export function PreferencesStep({ options }: { options: RegistrationOptions }) {
                     type="button"
                     onClick={() =>
                       setExpanded((value) =>
-                        open
-                          ? value.filter((id) => id !== category.id)
-                          : [...value, category.id],
+                        value === category.id ? null : category.id,
                       )
                     }
                     aria-expanded={open}
@@ -251,20 +259,33 @@ export function PreferencesStep({ options }: { options: RegistrationOptions }) {
                     hidden={!open}
                     className="grid gap-2 p-3 sm:grid-cols-2"
                   >
-                    {category.positions.map((position) => (
-                      <label
-                        key={position.id}
-                        className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-3 py-3 text-sm transition-colors ${selected.includes(position.id) ? "border-primary/40 bg-primary/10" : "border-transparent hover:bg-secondary"}`}
-                      >
-                        <input
-                          type="checkbox"
-                          className="size-4 shrink-0 accent-primary"
-                          checked={selected.includes(position.id)}
-                          onChange={() => togglePosition(position.id)}
-                        />
-                        {position.label}
-                      </label>
-                    ))}
+                    {category.positions.map((position) =>
+                      position.id === "other" ? (
+                        <div key={position.id} className="p-1 sm:col-span-2">
+                          <Field
+                            name="preferences.otherPosition"
+                            label="Other career position"
+                            maxLength={200}
+                            onChange={(event) =>
+                              changeOtherPosition(event.target.value)
+                            }
+                          />
+                        </div>
+                      ) : (
+                        <label
+                          key={position.id}
+                          className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-3 py-3 text-sm transition-colors ${selected.includes(position.id) ? "border-primary/40 bg-primary/10" : "border-transparent hover:bg-secondary"}`}
+                        >
+                          <input
+                            type="checkbox"
+                            className="size-4 shrink-0 accent-primary"
+                            checked={selected.includes(position.id)}
+                            onChange={() => togglePosition(position.id)}
+                          />
+                          {position.label}
+                        </label>
+                      ),
+                    )}
                   </div>
                 </div>
               );
@@ -272,13 +293,6 @@ export function PreferencesStep({ options }: { options: RegistrationOptions }) {
         </div>
         <GroupError name="preferences.positionIds" />
       </fieldset>
-      {selected.includes("other") && (
-        <Field
-          name="preferences.otherPosition"
-          label="Other career position"
-          maxLength={200}
-        />
-      )}
       <div>
         <SelectField
           name="preferences.firstPreferencePositionId"
@@ -461,28 +475,25 @@ export function ReviewStep({
           </div>
         ))}
         <div>
-          <label className="flex min-h-11 cursor-pointer items-start gap-3 text-sm leading-6">
+          <div className="flex min-h-11 items-start gap-3 text-sm leading-6">
             <input
               id="field-additional.privacyAgreed"
               type="checkbox"
               {...register("additional.privacyAgreed")}
+              aria-labelledby="privacy-agreement-label"
               disabled={!options.canSubmit}
               className="mt-1.5 size-4 shrink-0 accent-primary disabled:opacity-40"
             />
-            <span>
-              I have read and agree to the{" "}
-              <Link
-                href="/privacy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-sm text-primary underline underline-offset-4"
+            <span id="privacy-agreement-label">
+              <label
+                htmlFor="field-additional.privacyAgreed"
+                className="cursor-pointer"
               >
-                Privacy Notice
-                <span className="sr-only"> (opens in a new tab)</span>
-              </Link>
-              .
+                I have read and agree to the{" "}
+              </label>
+              <PrivacyNoticeTrigger />.
             </span>
-          </label>
+          </div>
           <GroupError name="additional.privacyAgreed" />
           {!options.canSubmit && (
             <p className="mt-2 text-xs leading-5 text-muted-foreground">

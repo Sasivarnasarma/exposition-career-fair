@@ -87,15 +87,14 @@ export function DashboardBreakdowns({
     <section aria-labelledby="audience-heading" className="mt-10">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="eyebrow">Understand your audience</p>
           <h2 id="audience-heading" className="mt-2 text-xl font-semibold">
-            The candidate picture
+            Candidate insights
           </h2>
         </div>
         <div
           role="group"
           aria-label="Breakdown view"
-          className="flex max-w-full gap-1 overflow-x-auto rounded-full border border-border bg-card p-1"
+          className="flex max-w-full gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1"
         >
           {views.map((item) => (
             <button

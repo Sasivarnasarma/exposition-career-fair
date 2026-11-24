@@ -82,16 +82,18 @@ async function Dashboard({ searchParams }: { searchParams: Promise<Search> }) {
     },
   ];
   return (
-    <div className="hero-enter">
+    <div>
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
-          <p className="eyebrow">Career Fair · Organiser overview</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Make the next connection.
+          <p className="mb-2 text-sm text-primary">
+            {stats.event?.name || "Career Fair"}
+          </p>
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+            Event overview
           </h1>
           <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
-            A clear view of your candidates, their interests, and the
-            opportunities ahead.
+            Registrations, candidate interests and the latest activity for this
+            event.
           </p>
         </div>
         <Button asChild size="sm">
@@ -135,12 +137,11 @@ async function Dashboard({ searchParams }: { searchParams: Promise<Search> }) {
             : "Event registration closed"}
         </span>
       </div>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {cards.map(({ label, value, detail, icon: Icon }, index) => (
+      <div className="mt-5 grid overflow-hidden rounded-2xl border border-border bg-card sm:grid-cols-2 xl:grid-cols-4">
+        {cards.map(({ label, value, detail, icon: Icon }) => (
           <section
             key={label}
-            className={`hero-enter rounded-2xl border p-5 ${index === 0 ? "border-primary/25 bg-[radial-gradient(ellipse_at_top_right,#b8894f20,transparent_80%)]" : "border-border bg-card"}`}
-            style={{ animationDelay: `${index * 60}ms` }}
+            className="border-border p-6 not-last:border-b sm:odd:border-r xl:not-last:border-r xl:not-last:border-b-0"
           >
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-xs font-medium text-muted-foreground">
@@ -172,8 +173,7 @@ async function Dashboard({ searchParams }: { searchParams: Promise<Search> }) {
       >
         <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-5 sm:px-6">
           <div>
-            <p className="eyebrow">Latest activity</p>
-            <h2 id="recent-heading" className="mt-2 text-xl font-semibold">
+            <h2 id="recent-heading" className="text-xl font-semibold">
               Recent registrations
             </h2>
           </div>
@@ -230,10 +230,10 @@ async function Dashboard({ searchParams }: { searchParams: Promise<Search> }) {
               aria-hidden
               className="mx-auto mb-4 size-7 text-primary/60"
             />
-            <h3 className="font-medium">Your next connections start here.</h3>
+            <h3 className="font-medium">No registrations yet</h3>
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-              Once candidates register for this edition, their latest
-              submissions will appear here.
+              Registrations will appear here when candidates submit their
+              details. Choose an event above to view another edition.
             </p>
           </div>
         )}

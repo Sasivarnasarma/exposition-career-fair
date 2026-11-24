@@ -31,7 +31,7 @@ async function Receipt() {
           <>
             <CheckCircle2 aria-hidden className="mb-7 size-12 text-primary" />
             <p className="eyebrow">Your next step starts here</p>
-            <h1 className="mt-4 text-3xl font-bold sm:text-4xl">
+            <h1 className="mt-4 font-display text-4xl leading-tight sm:text-4xl">
               You&apos;re pre-registered.
             </h1>
             <p className="mt-5 leading-8 text-muted-foreground">
@@ -80,7 +80,7 @@ async function Receipt() {
         ) : (
           <>
             <p className="eyebrow">Registration receipt</p>
-            <h1 className="mt-4 text-3xl font-bold">
+            <h1 className="mt-4 font-display text-4xl leading-tight">
               No current receipt found.
             </h1>
             <p className="mt-5 leading-8 text-muted-foreground">

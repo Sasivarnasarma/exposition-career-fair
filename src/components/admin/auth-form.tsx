@@ -189,8 +189,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
                   type="button"
                   aria-label={visible ? "Hide password" : "Show password"}
                   aria-pressed={visible}
+                  aria-controls="admin-password"
+                  disabled={busy}
                   onClick={() => setVisible((v) => !v)}
-                  className="absolute inset-y-0 right-1 flex w-11 items-center justify-center rounded-lg text-muted-foreground hover:text-primary"
+                  className="absolute inset-y-0 right-1 flex w-11 items-center justify-center rounded-lg text-muted-foreground hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {visible ? (
                     <EyeOff aria-hidden className="size-4" />

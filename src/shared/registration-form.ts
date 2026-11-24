@@ -73,7 +73,7 @@ export function emptyDraft(privacyVersion: string): RegistrationDraft {
     personal: {
       fullName: "",
       email: "",
-      phone: "",
+      phone: "+94",
       districtId: "",
       linkedInUrl: "",
       portfolioUrl: "",

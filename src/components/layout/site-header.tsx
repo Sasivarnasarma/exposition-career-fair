@@ -27,10 +27,10 @@ export function SiteHeader() {
     (pathname.startsWith(routes.register) ||
       pathname.startsWith("/registration"));
   return (
-    <header className="site-container pt-4 sm:pt-6">
+    <header id="site-top" className="site-container">
       <nav
         aria-label="Main navigation"
-        className="flex min-h-20 flex-wrap items-center justify-between gap-3 rounded-3xl border border-white/10 bg-card/85 px-4 py-4 shadow-2xl shadow-black/25 backdrop-blur-xl sm:rounded-full sm:px-7"
+        className="flex min-h-24 flex-wrap items-center justify-between gap-3 border-b border-border py-5 sm:py-6"
       >
         <Brand />
         {compact ? (
@@ -56,7 +56,7 @@ export function SiteHeader() {
             </a>
             <RegistrationLink
               compact
-              className="max-[380px]:px-3 max-[380px]:text-[10px]"
+              className="max-[380px]:px-3 max-[380px]:text-xs"
             />
           </div>
         )}

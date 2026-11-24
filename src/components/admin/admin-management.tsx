@@ -145,9 +145,8 @@ export function AdminManagement({ data }: { data: AdminManagementData }) {
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="eyebrow">Committee access</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-            The people behind the fair.
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+            Team access
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
             Invite organisers and manage access to candidate information. New
@@ -161,7 +160,7 @@ export function AdminManagement({ data }: { data: AdminManagementData }) {
       </div>
       <section
         aria-labelledby="invite-heading"
-        className="rounded-3xl border border-primary/20 bg-linear-to-br from-primary/10 via-card to-card p-6 sm:p-8"
+        className="rounded-2xl border border-border bg-card p-6 sm:p-8"
       >
         <div className="flex items-start gap-4">
           <span className="rounded-2xl border border-primary/20 bg-primary/10 p-3 text-primary">
@@ -169,7 +168,7 @@ export function AdminManagement({ data }: { data: AdminManagementData }) {
           </span>
           <div className="min-w-0 flex-1">
             <h2 id="invite-heading" className="text-xl font-semibold">
-              Bring an organiser on board
+              Invite an organiser
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               Send a secure invitation to set up their account. They can view
@@ -206,7 +205,7 @@ export function AdminManagement({ data }: { data: AdminManagementData }) {
           </div>
           <Button type="submit" disabled={pending} className="sm:min-h-12">
             {pending ? (
-              <LoaderCircle className="animate-spin" aria-hidden />
+              <LoaderCircle className="motion-safe:animate-spin" aria-hidden />
             ) : (
               <MailPlus aria-hidden />
             )}
@@ -270,7 +269,12 @@ export function AdminManagement({ data }: { data: AdminManagementData }) {
                     )
               }
             >
-              {pending && <LoaderCircle className="animate-spin" aria-hidden />}
+              {pending && (
+                <LoaderCircle
+                  className="motion-safe:animate-spin"
+                  aria-hidden
+                />
+              )}
               Confirm
             </Button>
             <Button

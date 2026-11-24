@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { saveDraft } from "./draft-storage";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -10,14 +9,14 @@ import {
   ArrowRight,
   Check,
   LoaderCircle,
-  LockKeyhole,
   RotateCcw,
   ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Turnstile } from "@/components/security/turnstile";
-import photo from "@/assets/images/previous-fair-conversation.webp";
+import { RegistrationSlideshow } from "./slideshow";
+import { RegistrationFieldsSkeleton } from "./loading-skeleton";
 import { registrationDataSchema } from "@/shared/registration-data";
 import {
   draftPayload,
@@ -357,8 +356,8 @@ export function RegistrationForm({
     >
       <div className="mb-10 max-w-2xl">
         <p className="eyebrow">Exposition Career Fair {options.year}</p>
-        <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
-          Make your next move.
+        <h1 className="mt-3 font-display text-4xl leading-tight sm:text-5xl">
+          Start your next conversation.
         </h1>
         <p className="mt-5 text-sm leading-7 text-muted-foreground sm:text-base">
           Tell us about yourself and the opportunities you&apos;re looking for.
@@ -399,7 +398,7 @@ export function RegistrationForm({
                       )}
                     </span>
                     <span
-                      className={`text-[10px] leading-4 sm:text-xs lg:text-sm ${index === step ? "font-semibold text-foreground" : "text-muted-foreground"}`}
+                      className={`text-xs leading-5 lg:text-sm ${index === step ? "font-semibold text-foreground" : "text-muted-foreground"}`}
                     >
                       {label}
                     </span>
@@ -408,43 +407,11 @@ export function RegistrationForm({
               ))}
             </ol>
           </nav>
-          <div className="hidden overflow-hidden rounded-3xl border border-border lg:block">
-            <div className="relative aspect-[4/3]">
-              <Image
-                src={photo}
-                alt="A conversation at the previous Exposition Career Fair"
-                fill
-                sizes="260px"
-                className="object-cover"
-                quality={90}
-              />
-              <div
-                aria-hidden
-                className="absolute inset-0 bg-gradient-to-t from-background to-transparent"
-              />
-            </div>
-            <div className="relative -mt-5 p-5">
-              <p className="text-sm font-medium">
-                One conversation.
-                <br />A new direction.
-              </p>
-              <p className="mt-3 text-xs leading-6 text-muted-foreground">
-                A moment from the previous Career Fair.
-              </p>
-            </div>
-          </div>
-          <p className="hidden items-start gap-2 text-xs leading-6 text-muted-foreground lg:flex">
-            <LockKeyhole
-              aria-hidden
-              className="mt-1 size-4 shrink-0 text-primary"
-            />
-            Your details are for the organising team. No candidate account is
-            needed.
-          </p>
+          <RegistrationSlideshow />
         </aside>
         <Card className="min-w-0 p-5 sm:p-8 lg:p-10">
           <div className="mb-7 flex items-center justify-between gap-4">
-            <p className="text-xs font-medium tracking-widest whitespace-nowrap text-primary uppercase">
+            <p className="text-sm font-medium whitespace-nowrap text-primary">
               Step {step + 1} of 4
             </p>
             <span className="inline-flex items-center gap-2 text-xs text-muted-foreground">
@@ -452,16 +419,22 @@ export function RegistrationForm({
               Registration
             </span>
           </div>
-          <div className="mb-8 h-1 overflow-hidden rounded-full bg-secondary">
+          <div
+            role="progressbar"
+            aria-label="Registration progress"
+            aria-valuemin={0}
+            aria-valuemax={4}
+            aria-valuenow={step + 1}
+            aria-valuetext={`Step ${step + 1} of 4: ${steps[step]}`}
+            className="mb-8 h-1 overflow-hidden rounded-full bg-secondary"
+          >
             <div
               className="h-full rounded-full bg-primary transition-[width] duration-500 motion-reduce:transition-none"
               style={{ width: `${(step + 1) * 25}%` }}
             />
           </div>
           {!ready ? (
-            <p role="status" className="py-10 text-sm text-muted-foreground">
-              Preparing your form...
-            </p>
+            <RegistrationFieldsSkeleton />
           ) : recovery ? (
             <div className="py-8">
               <h2 className="text-2xl font-semibold">
