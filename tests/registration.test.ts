@@ -14,6 +14,7 @@ import {
   receiptLifetime,
 } from "../src/server/registrations/receipt";
 import { registrationSettings } from "../src/server/registrations/config";
+import { site } from "../src/config/site";
 const original = { ...process.env };
 afterEach(() => {
   for (const key of Object.keys(process.env))
@@ -61,7 +62,7 @@ test("form conversion supports optional URLs/GPA, normalizes contact details and
     false,
   );
 });
-test("graduate years, GPA pairs and first preference have targeted validation errors", () => {
+test("graduate years, GPA bounds and first preference have targeted validation errors", () => {
   const data = draft();
   data.academic.graduationYear = String(new Date().getUTCFullYear() + 1);
   const result = registrationDataSchema.safeParse(draftPayload(data));
@@ -73,14 +74,12 @@ test("graduate years, GPA pairs and first preference have targeted validation er
       ),
     );
   data.academic.graduationYear = String(new Date().getUTCFullYear());
-  data.academic.gpa = "4";
-  data.academic.gpaScale = "3";
+  data.academic.gpa = "100";
   assert.equal(
     registrationDataSchema.safeParse(draftPayload(data)).success,
     false,
   );
   data.academic.gpa = "";
-  data.academic.gpaScale = "";
   data.preferences.firstPreferencePositionId = "data-analyst";
   assert.equal(
     registrationDataSchema.safeParse(draftPayload(data)).success,
@@ -170,7 +169,15 @@ test("development registration preview cannot enable production registration", (
   process.env.NEXT_PUBLIC_APP_URL = "https://careerfair.example.org";
   process.env.REGISTRATION_DEV_PREVIEW = "true";
   Object.assign(process.env, { NODE_ENV: "production" });
-  assert.equal(registrationSettings().enabled, false);
+  const wasOpen = site.registrationOpen;
+  try {
+    site.registrationOpen = false;
+    assert.equal(registrationSettings().enabled, false);
+    site.registrationOpen = true;
+    assert.equal(registrationSettings().enabled, true);
+  } finally {
+    site.registrationOpen = wasOpen;
+  }
   Object.assign(process.env, { NODE_ENV: "development" });
   assert.equal(registrationSettings().enabled, true);
 });
@@ -222,7 +229,6 @@ test("database outages return a redacted failure without a success receipt", asy
 test("GPA precision matches database storage without silently rounding", () => {
   const values = draft();
   values.academic.gpa = "3.14";
-  values.academic.gpaScale = "4.00";
   assert.equal(
     registrationDataSchema.safeParse(draftPayload(values)).success,
     true,
@@ -233,7 +239,11 @@ test("GPA precision matches database storage without silently rounding", () => {
     false,
   );
   values.academic.gpa = "0";
-  values.academic.gpaScale = "0.001";
+  assert.equal(
+    registrationDataSchema.safeParse(draftPayload(values)).success,
+    true,
+  );
+  values.academic.gpa = "100";
   assert.equal(
     registrationDataSchema.safeParse(draftPayload(values)).success,
     false,

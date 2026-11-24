@@ -22,8 +22,7 @@ export const site: SiteConfig = {
   organiser: "Industrial Management Science Students’ Association",
   university: "University of Kelaniya",
   collaborator: "IEEE Sri Lanka",
-  // Enable only after submission, privacy, and operational launch checks pass.
-  registrationOpen: false,
+  registrationOpen: true,
   eventDate: null,
   venue: null,
   registrationDeadline: null,

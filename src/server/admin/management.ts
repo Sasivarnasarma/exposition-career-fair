@@ -1,4 +1,5 @@
 import "server-only";
+import { lockAdminLifecycle } from "./lifecycle-lock";
 import { z } from "zod";
 import { getDatabase } from "../db";
 import { requireAdmin } from "../auth/permissions";
@@ -164,7 +165,7 @@ export async function updateAdminStatus(
     );
   return getDatabase().$transaction(
     async (tx) => {
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(48119423)`;
+      await lockAdminLifecycle(tx);
       const inviter = await tx.adminProfile.findFirst({
         where: { userId: actor.userId, active: true, role: "SUPER_ADMIN" },
       });
@@ -239,7 +240,7 @@ export async function revokeAdminInvitation(headers: Headers, id: string) {
     throw new AppError("INVALID_REQUEST", 400, "Please check the invitation.");
   return getDatabase().$transaction(
     async (tx) => {
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(48119423)`;
+      await lockAdminLifecycle(tx);
       if (
         !(await tx.adminProfile.findFirst({
           where: { userId: actor.userId, active: true, role: "SUPER_ADMIN" },

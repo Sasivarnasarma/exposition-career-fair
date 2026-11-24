@@ -1,4 +1,5 @@
 import "server-only";
+import { lockAdminLifecycle } from "./lifecycle-lock";
 import { randomUUID } from "node:crypto";
 import { hashPassword } from "better-auth/crypto";
 import { z } from "zod";
@@ -44,7 +45,7 @@ export async function createAdminInvitation(headers: Headers, email: string) {
   return db.$transaction(
     async (tx) => {
       // A small administrator population makes a shared lifecycle lock appropriate.
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(48119423)`;
+      await lockAdminLifecycle(tx);
       const inviter = await tx.adminProfile.findFirst({
         where: { userId: actor.userId, active: true, role: "SUPER_ADMIN" },
       });
@@ -135,7 +136,7 @@ export async function acceptAdminInvitation(
   try {
     await db.$transaction(
       async (tx) => {
-        await tx.$executeRaw`SELECT pg_advisory_xact_lock(48119423)`;
+        await lockAdminLifecycle(tx);
         const now = new Date();
         const invitation = await tx.adminInvitation.findUnique({
           where: { tokenHash },

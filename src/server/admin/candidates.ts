@@ -175,7 +175,6 @@ export const candidateDetailSelect = {
   academicYear: { select: { label: true } },
   graduationYear: true,
   gpa: true,
-  gpaScale: true,
   firstPreference: { select: { position: { select: { label: true } } } },
   otherPosition: true,
   positions: { select: { position: { select: { id: true, label: true } } } },
@@ -211,7 +210,6 @@ export async function getCandidateDetail(headers: Headers, id: string) {
   return {
     ...row,
     gpa: row.gpa?.toString() ?? null,
-    gpaScale: row.gpaScale?.toString() ?? null,
     createdAt: row.createdAt.toISOString(),
     emailVerifiedAt: row.emailVerifiedAt?.toISOString() ?? null,
     consent: row.consent

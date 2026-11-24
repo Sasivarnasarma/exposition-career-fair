@@ -1,4 +1,5 @@
 import "./load-env";
+import { site } from "../src/config/site";
 import assert from "node:assert/strict";
 import { randomUUID, randomBytes } from "node:crypto";
 import { getDatabase } from "../src/server/db";
@@ -18,6 +19,11 @@ async function main() {
     throw new Error("Dedicated development opt-in required");
   const db = getDatabase();
   const env = { ...process.env };
+  const originalRegistrationOpen = site.registrationOpen;
+  const originalEvent = await db.eventEdition.findUniqueOrThrow({
+    where: { id: process.env.REGISTRATION_EVENT_ID || "issue-22-2027" },
+    select: { id: true, registrationOpen: true },
+  });
   const originalFetch = globalThis.fetch;
   const eventId = `registration-test-${randomUUID()}`;
   const emails = [0, 1, 2, 3].map((i) => `${eventId}-${i}@example.org`);
@@ -212,20 +218,22 @@ async function main() {
     assert.equal((await send(fresh)).status, 409);
     assert.equal(await db.registration.count({ where: { eventId } }), 2);
     process.env.REGISTRATION_DEV_PREVIEW = "false";
+    site.registrationOpen = false;
     assert.equal((await send(fresh)).status, 403);
     assert.equal(
       (
         await db.eventEdition.findUniqueOrThrow({
-          where: { id: "issue-22-2027" },
+          where: { id: originalEvent.id },
         })
       ).registrationOpen,
-      false,
+      originalEvent.registrationOpen,
     );
     console.log(
       "Registration verification passed: real public test-key verification, invalid/outage rejection without records, atomic queue/consent, receipts, replay/conflicts, duplicate/concurrent requests, throttling, closed event and notice changes.",
     );
   } finally {
     globalThis.fetch = originalFetch;
+    site.registrationOpen = originalRegistrationOpen;
     try {
       if (created)
         await db.$transaction(async (tx) => {

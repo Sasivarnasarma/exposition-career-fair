@@ -90,18 +90,22 @@ export function AdminManagement({ data }: { data: AdminManagementData }) {
     if (confirmation) confirmationRef.current?.focus();
   }, [confirmation]);
   const pending = busy || refreshing;
+  const mutationInFlight = useRef(false);
   async function mutate(
     path: string,
     method: string,
     body?: unknown,
     success = "Change saved.",
   ) {
+    if (mutationInFlight.current) return false;
+    mutationInFlight.current = true;
     setBusy(true);
     setNotice(null);
     try {
       const response = await fetch(path, {
         method,
         headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(65000),
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
       });
       const result = await response.json();
@@ -123,13 +127,17 @@ export function AdminManagement({ data }: { data: AdminManagementData }) {
       setConfirmation(null);
       startTransition(() => router.refresh());
       return true;
-    } catch {
+    } catch (error) {
       setNotice({
         error: true,
-        message: "We could not reach the server. Please try again.",
+        message:
+          error instanceof DOMException && error.name === "TimeoutError"
+            ? "The request took too long. Refresh the invitation list to check whether it was created before trying again."
+            : "We could not reach the server. Please try again.",
       });
       return false;
     } finally {
+      mutationInFlight.current = false;
       setBusy(false);
     }
   }
@@ -187,7 +195,7 @@ export function AdminManagement({ data }: { data: AdminManagementData }) {
           <div className="flex-1">
             <label
               htmlFor="admin-invite-email"
-              className="mb-2 block text-sm font-medium"
+              className="mb-3 block text-sm font-medium"
             >
               Organiser email
             </label>

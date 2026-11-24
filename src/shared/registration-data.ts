@@ -58,26 +58,8 @@ export const registrationDataSchema = z
           .max(99)
           .multipleOf(0.01, "Use no more than two decimal places")
           .optional(),
-        gpaScale: z
-          .number()
-          .positive()
-          .max(99)
-          .multipleOf(0.01, "Use no more than two decimal places")
-          .optional(),
       })
       .strict()
-      .refine(
-        (a) =>
-          (a.gpa === undefined && a.gpaScale === undefined) ||
-          (a.gpa !== undefined &&
-            a.gpaScale !== undefined &&
-            a.gpa <= a.gpaScale),
-        {
-          message:
-            "Provide GPA and scale together, with GPA no greater than the scale",
-          path: ["gpa"],
-        },
-      )
       .refine(
         (a) =>
           a.academicYearId !== "year-graduate" ||

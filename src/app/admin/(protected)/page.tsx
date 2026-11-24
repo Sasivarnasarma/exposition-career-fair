@@ -195,10 +195,10 @@ async function Dashboard({ searchParams }: { searchParams: Promise<Search> }) {
                   className="group flex flex-wrap items-center justify-between gap-4 px-5 py-5 transition-colors hover:bg-secondary/50 sm:px-6"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-medium break-words group-hover:text-primary">
+                    <p className="text-sm font-medium wrap-break-word group-hover:text-primary">
                       {row.fullName}
                     </p>
-                    <p className="mt-1 text-xs break-words text-muted-foreground">
+                    <p className="mt-1 text-xs wrap-break-word text-muted-foreground">
                       {row.institutionName}
                     </p>
                   </div>

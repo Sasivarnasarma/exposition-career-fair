@@ -160,9 +160,8 @@ export default function Home() {
               Make room for your next opportunity.
             </h2>
             <p className="mt-4 max-w-[56ch] text-sm leading-7 text-muted-foreground">
-              {site.registrationOpen
-                ? "Tell the organising team about yourself and the opportunities you are looking for."
-                : "Explore what you will need to pre-register. Submission will be available when registration opens."}
+              Tell the organising team about yourself and the opportunities you
+              are looking for.
             </p>
           </div>
           <div className="flex flex-col items-start gap-3">

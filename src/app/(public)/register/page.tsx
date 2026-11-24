@@ -15,11 +15,11 @@ export const metadata: Metadata = {
 export const instant = false;
 async function Registration() {
   await connection();
-  if (process.env.NODE_ENV === "production" && !site.registrationOpen)
+  if (!site.registrationOpen)
     return (
       <Status
-        title="Your next opportunity is on its way."
-        description="Pre-registration is not open yet. Please check back for updates."
+        title="Registration is currently closed."
+        description="Please check back for updates."
       />
     );
   let options;
@@ -33,11 +33,11 @@ async function Registration() {
       />
     );
   }
-  if (!options.canSubmit && process.env.NODE_ENV === "production")
+  if (!options.canSubmit)
     return (
       <Status
-        title="Your next opportunity is on its way."
-        description="Pre-registration is not open yet. Please check back for updates."
+        title="Registration is currently closed."
+        description="Please check back for updates."
       />
     );
   return (

@@ -165,7 +165,7 @@ export function VerificationScreen() {
         throw new Error("Invalid resend response");
       setResendSucceeded(true);
       setResendMessage(
-        "If an eligible registration exists, a verification message has been queued. Please check your inbox and spam folder.",
+        "If an eligible registration exists and its email address has not already been verified, a verification message has been queued. Please check your inbox and spam folder.",
       );
     } catch {
       setResendMessage(
@@ -286,10 +286,10 @@ export function VerificationScreen() {
               does not create another registration.
             </p>
             <form noValidate onSubmit={resend} className="mt-6 space-y-5">
-              <div className="space-y-2">
+              <div className="grid gap-3">
                 <label
                   htmlFor="verification-email"
-                  className="text-sm font-medium"
+                  className="block text-sm font-medium"
                 >
                   Registration email
                 </label>

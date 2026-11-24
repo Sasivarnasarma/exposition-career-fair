@@ -150,8 +150,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
       {resetReady && !success && !invalidReset && (
         <>
           {mode !== "reset" && (
-            <div className="space-y-2">
-              <label htmlFor="admin-email" className="text-sm font-medium">
+            <div className="grid gap-3">
+              <label
+                htmlFor="admin-email"
+                className="block text-sm font-medium"
+              >
                 Email address
               </label>
               <Input
@@ -167,8 +170,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
             </div>
           )}
           {mode !== "forgot" && (
-            <div className="space-y-2">
-              <label htmlFor="admin-password" className="text-sm font-medium">
+            <div className="grid gap-3">
+              <label
+                htmlFor="admin-password"
+                className="block text-sm font-medium"
+              >
                 {mode === "reset" ? "New password" : "Password"}
               </label>
               <div className="relative">
@@ -209,10 +215,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
             </div>
           )}
           {mode === "reset" && (
-            <div className="space-y-2">
+            <div className="grid gap-3">
               <label
                 htmlFor="admin-password-confirm"
-                className="text-sm font-medium"
+                className="block text-sm font-medium"
               >
                 Confirm new password
               </label>

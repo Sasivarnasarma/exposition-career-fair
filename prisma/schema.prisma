@@ -230,7 +230,6 @@ model Registration {
   academicYearId            String
   graduationYear            Int
   gpa                       Decimal?                  @db.Decimal(4, 2)
-  gpaScale                  Decimal?                  @db.Decimal(4, 2)
   firstPreferencePositionId String
   otherPosition             String?
   referralSourceId          String

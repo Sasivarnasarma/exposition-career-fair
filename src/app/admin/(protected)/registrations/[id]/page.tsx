@@ -180,11 +180,7 @@ async function Registration({ params }: { params: Promise<{ id: string }> }) {
               <Value label="Graduation / expected graduation year">
                 {candidate.graduationYear}
               </Value>
-              <Value label="GPA and scale">
-                {candidate.gpa && candidate.gpaScale
-                  ? `${candidate.gpa} / ${candidate.gpaScale}`
-                  : null}
-              </Value>
+              <Value label="GPA">{candidate.gpa}</Value>
             </dl>
           </Section>
           <Section

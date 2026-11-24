@@ -33,6 +33,8 @@ export function databaseSettings(
     connectionTimeoutMillis: 10000,
     idleTimeoutMillis: 30000,
     statement_timeout: 15000,
+    lock_timeout: 10000,
+    idle_in_transaction_session_timeout: 20000,
     ssl:
       local && env.NODE_ENV !== "production"
         ? false

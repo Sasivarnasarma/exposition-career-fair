@@ -8,7 +8,7 @@ const sections = [
   ],
   [
     "What we collect",
-    "We collect your name, email, contact number, district, academic details, graduation year, career and opportunity preferences, referral source, and confirmations and consent choices. Profile links, specialization, GPA and its scale are optional. We do not request NIC numbers or a full residential address. Candidates do not need an account.",
+    "We collect your name, email, contact number, district, academic details, graduation year, career and opportunity preferences, referral source, and confirmations and consent choices. Profile links, specialization and GPA are optional. We do not request NIC numbers or a full residential address. Candidates do not need an account.",
   ],
   [
     "Why we use it",

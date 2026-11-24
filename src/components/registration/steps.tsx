@@ -147,19 +147,7 @@ export function AcademicStep({ options }: { options: RegistrationOptions }) {
         min={0}
         max={99}
         step="0.01"
-        hint="Leave both GPA fields blank if you prefer not to provide it."
-      />
-      <Field
-        name="academic.gpaScale"
-        label="GPA scale"
-        optional
-        type="number"
-        inputMode="decimal"
-        min={0.01}
-        max={99}
-        step="0.01"
-        placeholder="For example, 4.00"
-        hint="Enter the maximum GPA on your institution's scale."
+        hint="Leave this blank if you prefer not to provide it."
       />
     </div>
   );
@@ -378,9 +366,7 @@ export function ReviewStep({
               values.academic.facultyName,
               values.academic.degreeName,
               values.academic.specialization,
-              values.academic.gpa && values.academic.gpaScale
-                ? `GPA: ${values.academic.gpa} / ${values.academic.gpaScale}`
-                : "",
+              values.academic.gpa ? `GPA: ${values.academic.gpa}` : "",
               `${options.academicYears.find((o) => o.id === values.academic.academicYearId)?.label || ""} - ${values.academic.graduationYear}`,
             ],
           },
@@ -495,12 +481,6 @@ export function ReviewStep({
             </span>
           </div>
           <GroupError name="additional.privacyAgreed" />
-          {!options.canSubmit && (
-            <p className="mt-2 text-xs leading-5 text-muted-foreground">
-              Privacy agreement and submission will be available when
-              pre-registration opens.
-            </p>
-          )}
         </div>
       </div>
       {site.whatsappCommunityUrl && (

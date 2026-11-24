@@ -52,6 +52,8 @@ test("remote database configuration enforces verified TLS", () => {
     true,
   );
   assert.equal(settings.max, 5);
+  assert.equal(settings.lock_timeout, 10000);
+  assert.equal(settings.idle_in_transaction_session_timeout, 20000);
   assert.throws(() =>
     databaseSettings({
       DATABASE_URL:
@@ -93,7 +95,7 @@ test("registration validates first preference, Other, GPA and required consent",
   assert.equal(
     registrationDataSchema.safeParse({
       ...valid,
-      academic: { ...valid.academic, gpa: 4, gpaScale: 3 },
+      academic: { ...valid.academic, gpa: -1 },
     }).success,
     false,
   );

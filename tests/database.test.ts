@@ -110,7 +110,7 @@ test("invalid consent and GPA are rejected by database constraints", async () =>
     ),
   );
   await assert.rejects(
-    db.exec(`UPDATE "Registration" SET gpa=5,"gpaScale"=4 WHERE id='accepted'`),
+    db.exec(`UPDATE "Registration" SET gpa=-1 WHERE id='accepted'`),
   );
 });
 
@@ -129,4 +129,20 @@ test("all application tables enable RLS and first-preference constraint is defer
     condeferrable: true,
     condeferred: true,
   });
+});
+
+test("GPA scale is absent and GPA can be stored independently", async () => {
+  const columns = await db.query(
+    `SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='Registration' AND column_name='gpaScale'`,
+  );
+  assert.equal(columns.rows.length, 0);
+  await db.exec(`UPDATE "Registration" SET gpa=3.75 WHERE id='accepted'`);
+  const result = await db.query<{ gpa: string }>(
+    `SELECT gpa::text FROM "Registration" WHERE id='accepted'`,
+  );
+  assert.equal(result.rows[0].gpa, "3.75");
+  await assert.rejects(
+    db.exec(`UPDATE "Registration" SET gpa=100 WHERE id='accepted'`),
+  );
+  await db.exec(`UPDATE "Registration" SET gpa=NULL WHERE id='accepted'`);
 });

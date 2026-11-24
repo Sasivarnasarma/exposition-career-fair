@@ -56,26 +56,6 @@ async function Receipt() {
               already saved, even if the message is delayed. If it hasn’t
               arrived, request another verification email below.
             </p>
-            <Link
-              href="/verify-email"
-              className={buttonVariants({
-                variant: "outline",
-                className: "mt-6",
-              })}
-            >
-              Verify or resend email
-            </Link>
-            {site.whatsappCommunityUrl && (
-              <a
-                href={site.whatsappCommunityUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={buttonVariants({ className: "mt-6" })}
-              >
-                Join the WhatsApp community
-                <ArrowUpRight aria-hidden />
-              </a>
-            )}
           </>
         ) : (
           <>
@@ -90,12 +70,32 @@ async function Receipt() {
             </p>
           </>
         )}
-        <Link
-          href="/"
-          className={buttonVariants({ variant: "outline", className: "mt-8" })}
-        >
-          Back to the Career Fair
-        </Link>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          {receipt && (
+            <>
+              <Link
+                href="/verify-email"
+                className={buttonVariants({ variant: "outline" })}
+              >
+                Verify or resend email
+              </Link>
+              {site.whatsappCommunityUrl && (
+                <a
+                  href={site.whatsappCommunityUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={buttonVariants()}
+                >
+                  Join the WhatsApp community
+                  <ArrowUpRight aria-hidden />
+                </a>
+              )}
+            </>
+          )}
+          <Link href="/" className={buttonVariants({ variant: "outline" })}>
+            Back to the Career Fair
+          </Link>
+        </div>
       </Card>
     </main>
   );

@@ -135,8 +135,11 @@ export function AcceptInvitation() {
       {invitationToken && !success && (
         <form onSubmit={submit} className="space-y-5">
           <fieldset disabled={busy} className="space-y-5">
-            <div className="space-y-2">
-              <label htmlFor="invitation-name" className="text-sm font-medium">
+            <div className="grid gap-3">
+              <label
+                htmlFor="invitation-name"
+                className="block text-sm font-medium"
+              >
                 Display name
               </label>
               <Input
@@ -148,10 +151,10 @@ export function AcceptInvitation() {
                 maxLength={120}
               />
             </div>
-            <div className="space-y-2">
+            <div className="grid gap-3">
               <label
                 htmlFor="invitation-password"
-                className="text-sm font-medium"
+                className="block text-sm font-medium"
               >
                 New password
               </label>
@@ -184,10 +187,10 @@ export function AcceptInvitation() {
                 Use at least 12 characters.
               </p>
             </div>
-            <div className="space-y-2">
+            <div className="grid gap-3">
               <label
                 htmlFor="invitation-confirmation"
-                className="text-sm font-medium"
+                className="block text-sm font-medium"
               >
                 Confirm password
               </label>

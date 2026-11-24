@@ -37,7 +37,7 @@ ESLint retains Next.js Core Web Vitals and TypeScript rules; formatting is handl
 - Better Auth for administrator authentication
 - Resend for transactional email
 
-Copy `.env.example` to `.env.local` and provide real values when configuring services. Credentials must remain on the server. The PostgreSQL schema, seed catalogs, transactional persistence, and infrastructure checks are implemented. Administrator authentication, session authorization, and Turnstile enforcement are implemented. The four-step registration flow, guarded submission endpoint, and signed receipt are implemented. Public registration remains closed pending privacy and launch checks. CSV exports and the full admin dashboard remain in development.
+Copy `.env.example` to `.env.local` and provide real values when configuring services. Credentials must remain on the server. The PostgreSQL schema, seed catalogs, transactional persistence, and infrastructure checks are implemented. Administrator authentication, session authorization, and Turnstile enforcement are implemented. The four-step registration flow, guarded submission endpoint, and signed receipt are implemented. Public registration is enabled. The admin dashboard and CSV exports are implemented.
 
 ## Administrator access
 
@@ -61,11 +61,11 @@ Login and recovery submissions require Turnstile plus shared account/global limi
 
 ## Candidate registration
 
-The four-step form uses shared validation, optional event updates, a separate recent-graduate status, academic catalog suggestions with typed fallbacks, grouped career selections, a required first preference, and optional GPA with its scale. Drafts stay in session storage for the current browser tab and expire after 24 hours; mandatory confirmations are reviewed again on restore. Challenge tokens are never saved in drafts.
+The four-step form uses shared validation, optional event updates, a separate recent-graduate status, academic catalog suggestions with typed fallbacks, grouped career selections, a required first preference, and optional GPA. Drafts stay in session storage for the current browser tab and expire after 24 hours; mandatory confirmations are reviewed again on restore. Challenge tokens are never saved in drafts.
 
 Configure a dedicated random `REGISTRATION_RECEIPT_SECRET` of at least 32 characters. Receipt cookies are signed, HTTP-only, scoped to the receipt route, secure in production, and expire after 15 minutes. Success pages show only the server-issued reference. Registration retries retain the same request key for the same normalized payload; accepted submissions atomically create their email queue work.
 
-Production registration requires both the site launch flag and an open event with a non-draft privacy version. Development shows a non-submitting form preview while closed. `REGISTRATION_DEV_PREVIEW=true` allows submission only outside production, subject to the selected database event's availability and notice. Never open the public event just to test the form.
+Production registration requires both the site launch flag and an open event with a non-draft privacy version. `REGISTRATION_DEV_PREVIEW=true` allows submission only outside production, subject to the selected database event's availability and notice. Use a disposable development event for automated registration tests.
 
 `pnpm registration:verify` requires `DATABASE_TEST_MODE=dedicated-development` and the public development Turnstile keys. It creates a unique temporary event, verifies the actual submission handler and receipt/retry/failure rules, and removes its records. No email is sent. Real production Turnstile hostname/action verification and published privacy wording are launch requirements.
 
@@ -81,7 +81,7 @@ Configure the server-only `RESEND_API_KEY`, verified `EMAIL_FROM` (or `RESEND_FR
 
 Candidate verification links use a URL fragment, are scrubbed into memory by the page, and require an explicit action rather than consuming on GET. Links expire after 48 hours. Password-reset links expire after one hour and invitations after 48 hours; acceptance creates only an ordinary admin. Public admin sign-up stays disabled. Super administrators can create and revoke invitations from the team-access workspace.
 
-Candidate retention is 90 days after the event, as approved for this project. The published Privacy Notice describes this and the configured service providers. The organising team must execute the deletion process and manage exports/provider backups; no automatic deletion is enabled before the event date and operations are finalized. Registration remains closed until launch approval.
+Candidate retention is 90 days after the event, as approved for this project. The published Privacy Notice describes this and the configured service providers. The organising team must execute the deletion process and manage exports/provider backups; no automatic deletion is enabled before the event date and operations are finalized. Registration is enabled through the site flag and the selected event’s availability.
 
 ## Organiser workspace
 

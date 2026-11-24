@@ -52,7 +52,7 @@ function Field({
   empty?: string;
 }) {
   return (
-    <label className="grid min-w-0 gap-2 text-xs font-medium text-muted-foreground">
+    <label className="grid min-w-0 gap-3 text-xs font-medium text-muted-foreground">
       {label}
       <select name={name} defaultValue={value ?? ""} className={selectStyle}>
         <option value="">{empty}</option>
@@ -160,7 +160,7 @@ async function Candidates({
         className="rounded-2xl border border-border bg-card p-5 sm:p-6"
       >
         <div className="grid items-end gap-4 md:grid-cols-[minmax(0,1fr)_minmax(12rem,0.45fr)_auto]">
-          <label className="grid gap-2 text-xs font-medium text-muted-foreground">
+          <label className="grid gap-3 text-xs font-medium text-muted-foreground">
             Search candidates
             <div className="relative">
               <Search

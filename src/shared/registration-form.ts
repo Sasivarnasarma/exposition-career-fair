@@ -21,7 +21,6 @@ export type RegistrationDraft = {
     academicYearId: string;
     graduationYear: string;
     gpa: string;
-    gpaScale: string;
   };
   preferences: {
     positionIds: string[];
@@ -89,7 +88,6 @@ export function emptyDraft(privacyVersion: string): RegistrationDraft {
       academicYearId: "",
       graduationYear: "",
       gpa: "",
-      gpaScale: "",
     },
     preferences: {
       positionIds: [],
@@ -126,7 +124,6 @@ export function draftPayload(values: RegistrationDraft) {
         ? Number(academic.graduationYear)
         : NaN,
       gpa: optionalNumber(academic.gpa),
-      gpaScale: optionalNumber(academic.gpaScale),
     },
     preferences: values.preferences,
     additional: values.additional,
@@ -158,7 +155,6 @@ const storedValues = z
         academicYearId: string,
         graduationYear: string,
         gpa: string,
-        gpaScale: string,
       })
       .strict(),
     preferences: z

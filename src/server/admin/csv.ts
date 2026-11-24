@@ -36,7 +36,6 @@ export const candidateCsvHeaders = [
   "Academic year",
   "Graduation year",
   "GPA",
-  "GPA scale",
   "First preference",
   "Selected positions",
   "Other position",
@@ -69,7 +68,6 @@ const csvSelect = {
   academicYear: { select: { label: true } },
   graduationYear: true,
   gpa: true,
-  gpaScale: true,
   firstPreference: { select: { position: { select: { label: true } } } },
   positions: {
     select: { position: { select: { label: true } } },
@@ -114,7 +112,6 @@ export function candidateCsvRow(r: CsvRecord) {
     r.academicYear.label,
     r.graduationYear,
     r.gpa?.toString(),
-    r.gpaScale?.toString(),
     r.firstPreference.position.label,
     r.positions.map((v) => v.position.label).join("; "),
     r.otherPosition,

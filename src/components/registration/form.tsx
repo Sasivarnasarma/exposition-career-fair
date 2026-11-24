@@ -364,16 +364,6 @@ export function RegistrationForm({
           Four steps to start a new conversation.
         </p>
       </div>
-      {!options.canSubmit && (
-        <div
-          role="status"
-          className="mb-7 rounded-2xl border border-primary/25 bg-primary/5 p-5 text-sm leading-7"
-        >
-          Pre-registration is not open yet. You can explore the form; privacy
-          agreement and submission will become available when registration
-          opens.
-        </div>
-      )}
       <div className="grid items-start gap-8 lg:grid-cols-[260px_minmax(0,1fr)] xl:gap-12">
         <aside className="space-y-7 lg:sticky lg:top-8">
           <nav aria-label="Registration progress">
