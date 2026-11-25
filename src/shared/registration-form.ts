@@ -105,6 +105,22 @@ export function emptyDraft(privacyVersion: string): RegistrationDraft {
     },
   };
 }
+export function hasRegistrationInput(values: RegistrationDraft): boolean {
+  return Object.entries(values).some(([section, fields]) =>
+    Object.entries(fields).some(([name, value]) => {
+      if (name === "privacyVersion") return false;
+      if (Array.isArray(value)) return value.length > 0;
+      if (typeof value === "boolean") return value;
+      if (typeof value !== "string" || !value.trim()) return false;
+      return !(
+        section === "personal" &&
+        name === "phone" &&
+        value.replace(/\s/g, "") === "+94"
+      );
+    }),
+  );
+}
+
 export function draftPayload(values: RegistrationDraft) {
   const { academic, personal } = values;
   const optionalNumber = (value: string) =>

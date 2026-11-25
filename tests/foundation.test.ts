@@ -1,4 +1,10 @@
 import { Client } from "pg";
+import { rootCertificates } from "node:tls";
+import { readFileSync } from "node:fs";
+import {
+  inlineDatabaseCa,
+  migrationCaCertificateFile,
+} from "../src/server/config/database-ca";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { databaseSettings } from "../src/server/config/database";
@@ -229,4 +235,43 @@ test("JSON media types are matched exactly while allowing charset parameters", a
     await readBoundedJson(makeRequest("application/json; charset=utf-8")),
     { accepted: true },
   );
+});
+
+test("inline database CA supports multiline PEM and escaped newlines with verified TLS", () => {
+  const pem = rootCertificates[0].trim();
+  for (const value of [
+    pem,
+    pem.replace(/\n/g, "\\n"),
+    pem.replace(/\n/g, "\\r\\n"),
+  ]) {
+    const settings = databaseSettings({
+      DATABASE_URL: "postgresql://example:placeholder@db.example.org/database",
+      DATABASE_CA_CERT: value,
+      DATABASE_CA_CERT_FILE: "unused-certificate.pem",
+    });
+    assert.deepEqual(settings.ssl, { rejectUnauthorized: true, ca: pem });
+  }
+});
+
+test("invalid inline certificates are rejected without exposing their content", () => {
+  assert.throws(
+    () => inlineDatabaseCa({ DATABASE_CA_CERT: "PRIVATE_CERTIFICATE_INPUT" }),
+    (error) =>
+      error instanceof Error &&
+      !error.message.includes("PRIVATE_CERTIFICATE_INPUT"),
+  );
+  assert.throws(() =>
+    inlineDatabaseCa({
+      DATABASE_CA_CERT:
+        "-----BEGIN CERTIFICATE-----\ninvalid\n-----END CERTIFICATE-----",
+    }),
+  );
+  assert.equal(inlineDatabaseCa({ DATABASE_CA_CERT: "  " }), undefined);
+});
+
+test("Prisma migrations materialize the same inline certificate", () => {
+  const pem = rootCertificates[0].trim();
+  const file = migrationCaCertificateFile({ DATABASE_CA_CERT: pem });
+  assert.ok(file);
+  assert.equal(readFileSync(file, "utf8"), pem);
 });

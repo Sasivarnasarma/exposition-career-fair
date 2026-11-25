@@ -3,6 +3,7 @@ import { afterEach, test } from "node:test";
 import { randomUUID } from "node:crypto";
 import {
   emptyDraft,
+  hasRegistrationInput,
   draftPayload,
   readDraft,
   registrationEnvelope,
@@ -248,4 +249,19 @@ test("GPA precision matches database storage without silently rounding", () => {
     registrationDataSchema.safeParse(draftPayload(values)).success,
     false,
   );
+});
+
+test("an untouched country-code prefix does not trigger a leave warning, while user input does", () => {
+  const values = emptyDraft("test-notice");
+  assert.equal(hasRegistrationInput(values), false);
+  values.personal.phone = "+94  ";
+  assert.equal(hasRegistrationInput(values), false);
+  values.personal.phone = "+9477";
+  assert.equal(hasRegistrationInput(values), true);
+  const optional = emptyDraft("test-notice");
+  optional.academic.specialization = "Computing";
+  assert.equal(hasRegistrationInput(optional), true);
+  const selected = emptyDraft("test-notice");
+  selected.preferences.positionIds = ["software-engineer"];
+  assert.equal(hasRegistrationInput(selected), true);
 });

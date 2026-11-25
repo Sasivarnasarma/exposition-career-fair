@@ -1,10 +1,11 @@
 import "server-only";
 import { z } from "zod";
-import { readFileSync } from "node:fs";
+import { databaseCaCertificate } from "./database-ca";
 import type { PoolConfig } from "pg";
 
 const schema = z.object({
   DATABASE_URL: z.string().url(),
+  DATABASE_CA_CERT: z.string().optional(),
   DATABASE_CA_CERT_FILE: z.string().optional(),
   DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(20).default(5),
   NODE_ENV: z.string().optional(),
@@ -27,6 +28,13 @@ export function databaseSettings(
   // pg lets URL query parameters override explicit Pool settings, including TLS
   // and hostname. Accept the URL authority only; configure all options here.
   url.search = "";
+  const ca =
+    local && env.NODE_ENV !== "production"
+      ? undefined
+      : databaseCaCertificate({
+          DATABASE_CA_CERT: env.DATABASE_CA_CERT,
+          DATABASE_CA_CERT_FILE: env.DATABASE_CA_CERT_FILE,
+        });
   return {
     connectionString: url.toString(),
     max: env.DATABASE_POOL_MAX,
@@ -40,9 +48,7 @@ export function databaseSettings(
         ? false
         : {
             rejectUnauthorized: true,
-            ...(env.DATABASE_CA_CERT_FILE
-              ? { ca: readFileSync(env.DATABASE_CA_CERT_FILE, "utf8") }
-              : {}),
+            ...(ca ? { ca } : {}),
           },
   };
 }

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { FormProvider, useForm, type FieldPath } from "react-hook-form";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
+  AlertCircle,
   ArrowLeft,
   ArrowRight,
   Check,
@@ -21,6 +22,7 @@ import { registrationDataSchema } from "@/shared/registration-data";
 import {
   draftPayload,
   emptyDraft,
+  hasRegistrationInput,
   readDraft,
   sections,
   steps,
@@ -33,6 +35,30 @@ import {
   PreferencesStep,
   ReviewStep,
 } from "./steps";
+
+const registrationFieldLabels: Record<string, string> = {
+  "personal.fullName": "Full name",
+  "personal.email": "Email address",
+  "personal.phone": "Contact number",
+  "personal.districtId": "District",
+  "personal.linkedInUrl": "LinkedIn",
+  "personal.portfolioUrl": "Portfolio",
+  "academic.institutionName": "University or institution",
+  "academic.facultyName": "Faculty",
+  "academic.degreeName": "Degree",
+  "academic.specialization": "Specialization",
+  "academic.academicYearId": "Academic year",
+  "academic.graduationYear": "Graduation year",
+  "academic.gpa": "GPA",
+  "preferences.positionIds": "Career positions",
+  "preferences.firstPreferencePositionId": "First preference",
+  "preferences.otherPosition": "Other career position",
+  "preferences.opportunityIds": "Opportunity types",
+  "additional.referralSourceId": "How you heard about us",
+  "additional.referralOther": "Other referral source",
+  "additional.accurate": "Accuracy confirmation",
+  "additional.privacyAgreed": "Privacy agreement",
+};
 
 export function RegistrationForm({
   options,
@@ -59,6 +85,10 @@ export function RegistrationForm({
   const onToken = useCallback((value: string) => setToken(value), []);
   const [challenge, setChallenge] = useState(0);
   const [message, setMessage] = useState("");
+  const [validationIssues, setValidationIssues] = useState<
+    { field: string; message: string }[]
+  >([]);
+  const errorSummary = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const pendingFocus = useRef<{ path: string; step: number } | null>(null);
   const status = useRef<HTMLDivElement>(null);
@@ -104,19 +134,8 @@ export function RegistrationForm({
       formState: { values: true },
       callback: save,
     });
-    const hasData = () => {
-      const data = getValues();
-      return (
-        !completed.current &&
-        !!(
-          data.personal.fullName ||
-          data.personal.email ||
-          data.personal.phone ||
-          data.academic.institutionName ||
-          data.preferences.positionIds.length
-        )
-      );
-    };
+    const hasData = () =>
+      !completed.current && hasRegistrationInput(getValues());
     function beforeUnload(event: BeforeUnloadEvent) {
       if (hasData()) {
         event.preventDefault();
@@ -173,6 +192,7 @@ export function RegistrationForm({
   function go(next: number) {
     setStep(next);
     setMessage("");
+    setValidationIssues([]);
     setToken("");
     setChallenge((value) => value + 1);
     pendingFocus.current = { path: "heading", step: next };
@@ -184,7 +204,9 @@ export function RegistrationForm({
     const target =
       pendingFocus.current.path === "heading"
         ? heading.current
-        : document.getElementById(`field-${pendingFocus.current.path}`);
+        : pendingFocus.current.path === "summary"
+          ? errorSummary.current
+          : document.getElementById(`field-${pendingFocus.current.path}`);
     if (!target) return;
     target.focus();
     target.scrollIntoView({
@@ -206,6 +228,7 @@ export function RegistrationForm({
   }
   function validate(currentOnly: boolean) {
     clearErrors();
+    setValidationIssues([]);
     const payload = draftPayload(getValues());
     const section = sections[step];
     const result = currentOnly
@@ -214,7 +237,10 @@ export function RegistrationForm({
     if (result.success) return result.data;
     const issues = result.error.issues.map((issue) => ({
       ...issue,
-      field: [currentOnly ? section : "", ...issue.path]
+      field: [
+        currentOnly ? section : "",
+        ...issue.path.filter((part) => typeof part !== "number"),
+      ]
         .filter(Boolean)
         .join("."),
     }));
@@ -230,8 +256,21 @@ export function RegistrationForm({
       );
       if (targetStep >= 0 && targetStep !== step) setStep(targetStep);
     }
-    focusError(first);
-    setMessage("Please check the highlighted fields before continuing.");
+    setValidationIssues(
+      issues.filter(
+        (issue, index) =>
+          issues.findIndex((item) => item.field === issue.field) === index,
+      ),
+    );
+    setMessage("");
+    pendingFocus.current = {
+      path: "summary",
+      step: Math.max(
+        0,
+        sections.findIndex((name) => first.startsWith(name)),
+      ),
+    };
+    requestAnimationFrame(finishStepTransition);
     return null;
   }
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -297,7 +336,16 @@ export function RegistrationForm({
               fields[0][0].startsWith(section),
             );
             if (index >= 0) setStep(index);
-            focusError(fields[0][0]);
+            setValidationIssues(
+              fields.map(([field, message]) => ({
+                field,
+                message: String(message),
+              })),
+            );
+            pendingFocus.current = {
+              path: "summary",
+              step: Math.max(0, index),
+            };
           }
         }
         setMessage(
@@ -305,7 +353,10 @@ export function RegistrationForm({
             ? result.error.message
             : "We could not submit your registration. Please try again.",
         );
-        requestAnimationFrame(() => status.current?.focus());
+        requestAnimationFrame(() => {
+          if (pendingFocus.current?.path === "summary") finishStepTransition();
+          else status.current?.focus();
+        });
         return;
       }
       if (
@@ -338,6 +389,7 @@ export function RegistrationForm({
     attempt.current = undefined;
     reset(emptyDraft(options.privacyVersion));
     setRecovery(null);
+    setValidationIssues([]);
     setStep(0);
     setMessage("");
     setToken("");
@@ -419,8 +471,8 @@ export function RegistrationForm({
             className="mb-8 h-1 overflow-hidden rounded-full bg-secondary"
           >
             <div
-              className="h-full rounded-full bg-primary transition-[width] duration-500 motion-reduce:transition-none"
-              style={{ width: `${(step + 1) * 25}%` }}
+              className="h-full origin-left rounded-full bg-primary transition-transform duration-300 motion-reduce:transition-none"
+              style={{ transform: `scaleX(${(step + 1) / 4})` }}
             />
           </div>
           {!ready ? (
@@ -453,7 +505,49 @@ export function RegistrationForm({
             </div>
           ) : (
             <FormProvider {...methods}>
-              <form noValidate onSubmit={submit}>
+              <form noValidate onSubmit={submit} aria-busy={busy}>
+                {validationIssues.length > 0 && (
+                  <div
+                    ref={errorSummary}
+                    tabIndex={-1}
+                    role="alert"
+                    aria-labelledby="registration-error-title"
+                    className="mb-8 scroll-mt-8 rounded-xl border border-destructive/40 bg-destructive/5 p-5 focus-visible:outline-destructive"
+                  >
+                    <h3
+                      id="registration-error-title"
+                      className="flex items-start gap-3 text-base font-semibold"
+                    >
+                      <AlertCircle
+                        aria-hidden
+                        className="mt-0.5 size-5 shrink-0 text-destructive"
+                      />
+                      Check your details before continuing
+                    </h3>
+                    <ul className="mt-3 space-y-1">
+                      {validationIssues.map((issue) => (
+                        <li key={issue.field}>
+                          <a
+                            href={`#field-${issue.field}`}
+                            className="inline-flex min-h-11 items-center rounded-md py-2 text-sm leading-6 underline decoration-destructive/50 underline-offset-4 hover:text-primary"
+                            onClick={(event) => {
+                              event.preventDefault();
+                              const targetStep = sections.findIndex((section) =>
+                                issue.field.startsWith(`${section}.`),
+                              );
+                              if (targetStep >= 0) setStep(targetStep);
+                              focusError(issue.field);
+                            }}
+                          >
+                            {registrationFieldLabels[issue.field] ||
+                              "Registration details"}
+                            : {issue.message}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 <fieldset disabled={busy} className="min-w-0">
                   <AnimatePresence mode="wait" initial={false}>
                     <motion.section
@@ -514,7 +608,7 @@ export function RegistrationForm({
                     />
                   </div>
                 )}
-                <div className="mt-9 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
+                <div className="mt-9 flex flex-col-reverse gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
                   <Button
                     variant="ghost"
                     disabled={busy || step === 0}

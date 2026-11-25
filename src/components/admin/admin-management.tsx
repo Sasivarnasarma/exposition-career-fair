@@ -85,6 +85,13 @@ export function AdminManagement({ data }: { data: AdminManagementData }) {
     id: string;
     active?: boolean;
   } | null>(null);
+  const noticeRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (notice) {
+      noticeRef.current?.focus();
+      noticeRef.current?.scrollIntoView({ block: "nearest" });
+    }
+  }, [notice]);
   const confirmationRef = useRef<HTMLElement>(null);
   useEffect(() => {
     if (confirmation) confirmationRef.current?.focus();
@@ -223,6 +230,8 @@ export function AdminManagement({ data }: { data: AdminManagementData }) {
       </section>
       {notice && (
         <div
+          ref={noticeRef}
+          tabIndex={-1}
           role={notice.error ? "alert" : "status"}
           className={`flex items-start gap-3 rounded-2xl border p-4 text-sm leading-6 ${notice.error ? "border-destructive/40 bg-destructive/5 text-destructive" : "border-primary/30 bg-primary/5 text-primary"}`}
         >

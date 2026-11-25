@@ -45,7 +45,7 @@ Admins can view registrations, statistics, and export CSV. A manually provisione
 
 ## Database commands
 
-Use `pnpm db:generate`, `pnpm db:validate`, `pnpm db:check`, `pnpm db:deploy`, and `pnpm db:seed` for database setup. Review the target database before applying migrations. Keep credentials and certificate configuration in ignored local environment settings.
+Use `pnpm db:generate`, `pnpm db:validate`, `pnpm db:check`, `pnpm db:deploy`, and `pnpm db:seed` for database setup. Review the target database before applying migrations. Keep credentials and certificate configuration in ignored local environment settings. For hosted environments, set `DATABASE_CA_CERT` to the complete PEM certificate, with actual line breaks or literal `\n` separators. This takes precedence over the optional `DATABASE_CA_CERT_FILE` used locally. Both application connections and migration commands use the same CA with certificate verification enabled. Migration commands create and clean up a temporary certificate file when inline content is supplied.
 
 `pnpm test` runs disposable PostgreSQL and infrastructure tests. The opt-in `pnpm db:verify` command requires `DATABASE_TEST_MODE=dedicated-development`; it exercises real database persistence with uniquely scoped temporary records and cleans up those records.
 

@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { resolve } from "node:path";
+import { migrationCaCertificateFile } from "./src/server/config/database-ca";
 import { defineConfig } from "prisma/config";
 
 config({ path: ".env.local", quiet: true });
@@ -12,11 +12,8 @@ if (connection) {
   const local = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
   if (!local || process.env.NODE_ENV === "production") {
     url.searchParams.set("sslmode", "verify-full");
-    if (process.env.DATABASE_CA_CERT_FILE)
-      url.searchParams.set(
-        "sslrootcert",
-        resolve(process.env.DATABASE_CA_CERT_FILE),
-      );
+    const certificateFile = migrationCaCertificateFile(process.env);
+    if (certificateFile) url.searchParams.set("sslrootcert", certificateFile);
   }
   migrationUrl = url.toString();
 }
