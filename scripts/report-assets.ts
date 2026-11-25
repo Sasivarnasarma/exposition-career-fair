@@ -12,7 +12,7 @@ const kib = (bytes: number) => Math.round(bytes / 1024);
 function main() {
   const photoFiles = files("src/assets/images"),
     photos = photoFiles.map((file) => statSync(file).size);
-  const output = ".next-production";
+  const output = process.env.VERCEL === "1" ? ".next" : ".next-production";
   if (!existsSync(join(output, "static")))
     throw new Error("Run pnpm build before measuring assets");
   const staticFiles = files(join(output, "static"));

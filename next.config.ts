@@ -4,10 +4,12 @@ import { securityHeaders } from "./src/config/security-headers";
 const nextConfig: NextConfig = {
   // Local previews also use the numeric loopback address for development HMR.
   allowedDevOrigins: ["127.0.0.1"],
-  // Keep production builds separate from a running development server.
+  // Vercel uses the standard output; local builds stay separate from dev caches.
   distDir:
     process.env.NODE_ENV === "production"
-      ? ".next-production"
+      ? process.env.VERCEL === "1"
+        ? ".next"
+        : ".next-production"
       : process.env.EXPOSITION_QA === "true"
         ? ".next-qa"
         : ".next",

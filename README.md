@@ -69,7 +69,7 @@ Production registration requires both the site launch flag and an open event wit
 
 `pnpm registration:verify` requires `DATABASE_TEST_MODE=dedicated-development` and the public development Turnstile keys. It creates a unique temporary event, verifies the actual submission handler and receipt/retry/failure rules, and removes its records. No email is sent. Real production Turnstile hostname/action verification and published privacy wording are launch requirements.
 
-For parallel local QA, `EXPOSITION_QA=true` selects a separate ignored `.next-qa` development cache; production always uses its normal production output. Temporary test editions must be created and removed in the dedicated development database rather than opening the public event.
+For parallel local QA, `EXPOSITION_QA=true` selects a separate ignored `.next-qa` development cache; Vercel production builds use the standard `.next` output. Local production builds use an isolated `.next-production` output so a running development server can keep its cache. Temporary test editions must be created and removed in the dedicated development database rather than opening the public event.
 
 ## Email delivery and verification
 
