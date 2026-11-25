@@ -67,7 +67,12 @@ test("unsafe action, footer and community URLs are rejected without reflecting t
     "https://example.org/\nheader",
     "not-a-url",
   ]) {
-    for (const field of ["actionUrl", "mainWebsite", "whatsappUrl"] as const) {
+    for (const field of [
+      "actionUrl",
+      "mainWebsite",
+      "whatsappUrl",
+      "logoUrl",
+    ] as const) {
       assert.throws(
         () =>
           renderEmail({
@@ -89,8 +94,14 @@ test("community links are optional and kept out of administrator emails", () => 
     kind: "REGISTRATION_CONFIRMATION",
     whatsappUrl: "https://chat.whatsapp.com/example",
   });
-  assert.match(candidate.html, /Community updates are optional/);
-  assert.match(candidate.text, /Optional WhatsApp community/);
+  assert.ok(!candidate.html.includes("Community updates are optional"));
+  assert.match(candidate.html, /class="email-community-cta"/);
+  assert.match(candidate.html, /Join WhatsApp community/);
+  assert.match(candidate.html, /whatsapp-email\.png/);
+  assert.ok(
+    candidate.html.includes('href="https://chat.whatsapp.com/example"'),
+  );
+  assert.match(candidate.text, /WhatsApp community/);
   const without = renderEmail({ ...base, kind: "CANDIDATE_VERIFICATION" });
   assert.ok(!without.text.includes("WhatsApp"));
   const admin = renderEmail({
@@ -117,10 +128,11 @@ test("email header and footer preserve branding, public organiser details and sa
       kind,
       actionUrl:
         "https://careerfair.example.org/admin/reset-password?token=fixture-token#private",
+      logoUrl: "https://assets.example.org/brand/exposition-issue-22.svg",
     });
     assert.match(message.html, /email-header/);
     assert.match(message.html, /CONNECTING TALENT &amp; OPPORTUNITY/);
-    assert.match(message.html, /ISSUE 22/);
+    assert.match(message.html, /Issue 22/);
     assert.match(message.html, /email-badge-cell/);
     assert.match(message.html, /email-footer/);
     assert.match(message.html, /University of Kelaniya/);
@@ -139,7 +151,9 @@ test("email header and footer preserve branding, public organiser details and sa
     );
     assert.match(message.text, /transactional email/);
     assert.ok(!message.html.includes("unsubscribe"));
-    assert.ok(!message.html.includes("<img"));
+    assert.match(message.html, /alt="Exposition Issue 22"/);
+    assert.ok(!message.html.includes("exposition-issue-22.svg"));
+    assert.match(message.html, /exposition-issue-22-email\.png/);
     assert.ok(
       !message.html.includes(
         'width="600" cellspacing="0" cellpadding="0" border="0" bgcolor=',

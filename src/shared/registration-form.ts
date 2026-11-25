@@ -99,7 +99,7 @@ export function emptyDraft(privacyVersion: string): RegistrationDraft {
       referralSourceId: "",
       referralOther: "",
       accurate: false,
-      updates: false,
+      updates: true,
       privacyAgreed: false,
       privacyVersion,
     },
@@ -110,7 +110,8 @@ export function hasRegistrationInput(values: RegistrationDraft): boolean {
     Object.entries(fields).some(([name, value]) => {
       if (name === "privacyVersion") return false;
       if (Array.isArray(value)) return value.length > 0;
-      if (typeof value === "boolean") return value;
+      if (typeof value === "boolean")
+        return section === "additional" && name === "updates" ? !value : value;
       if (typeof value !== "string" || !value.trim()) return false;
       return !(
         section === "personal" &&

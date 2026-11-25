@@ -27,5 +27,6 @@ export const site: SiteConfig = {
   venue: null,
   registrationDeadline: null,
   contactEmail: "exposition.mit@gmail.com",
-  whatsappCommunityUrl: null,
+  whatsappCommunityUrl:
+    process.env.NEXT_PUBLIC_WHATSAPP_COMMUNITY_URL?.trim() || null,
 };

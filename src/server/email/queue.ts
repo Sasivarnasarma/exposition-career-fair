@@ -32,6 +32,7 @@ export function prepareEmail(input: QueuedEmailInput): EmailMessage {
   const rendered = renderEmail({
     ...input,
     mainWebsite: input.mainWebsite || site.mainWebsite,
+    logoUrl: process.env.EMAIL_LOGO_URL?.trim() || undefined,
     whatsappUrl: input.whatsappUrl ?? site.whatsappCommunityUrl,
   });
   return messageSchema.parse({

@@ -18,6 +18,10 @@
   --muted-foreground: #b2ada5;
   --accent: #292318;
   --accent-foreground: #e8c98c;
+  --whatsapp: #14231a;
+  --whatsapp-foreground: #b4efc4;
+  --whatsapp-border: #376b48;
+  --whatsapp-hover: #1b3223;
   --destructive: #f87171;
   --border: #34312b;
   --input: #6b6b6b;
@@ -40,6 +44,10 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-whatsapp: var(--whatsapp);
+  --color-whatsapp-foreground: var(--whatsapp-foreground);
+  --color-whatsapp-border: var(--whatsapp-border);
+  --color-whatsapp-hover: var(--whatsapp-hover);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
   --color-input: var(--input);

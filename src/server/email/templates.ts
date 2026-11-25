@@ -11,6 +11,7 @@ export type EmailTemplateInput = {
   reference?: string;
   mainWebsite: string;
   whatsappUrl?: string | null;
+  logoUrl?: string;
 };
 
 type Copy = {
@@ -25,7 +26,7 @@ type Copy = {
 const copy: Record<EmailKind, Copy> = {
   REGISTRATION_CONFIRMATION: {
     subject: "Your Exposition Career Fair pre-registration",
-    eyebrow: "YOUR NEXT STEP STARTS HERE",
+    eyebrow: "Registration confirmed",
     heading: "You are pre-registered.",
     introduction:
       "Your Career Fair information has been saved. Please verify your email address so the organising team can confirm that it belongs to you.",
@@ -37,7 +38,7 @@ const copy: Record<EmailKind, Copy> = {
   },
   CANDIDATE_VERIFICATION: {
     subject: "Verify your Exposition Career Fair email",
-    eyebrow: "CONFIRM YOUR EMAIL ADDRESS",
+    eyebrow: "Email verification",
     heading: "One more step.",
     introduction:
       "Use the link below to verify the email address on your Career Fair pre-registration. Your saved registration remains separate from its email-verification status.",
@@ -49,7 +50,7 @@ const copy: Record<EmailKind, Copy> = {
   },
   ADMIN_INVITATION: {
     subject: "Your Exposition organiser invitation",
-    eyebrow: "EXPOSITION ORGANISERS",
+    eyebrow: "Organiser access",
     heading: "You are invited.",
     introduction:
       "You have been invited to join the Exposition Career Fair organising workspace. Use your personal invitation link to complete account setup.",
@@ -61,7 +62,7 @@ const copy: Record<EmailKind, Copy> = {
   },
   ADMIN_PASSWORD_RESET: {
     subject: "Reset your Exposition organiser password",
-    eyebrow: "EXPOSITION ORGANISERS",
+    eyebrow: "Organiser access",
     heading: "Reset your password.",
     introduction:
       "A password reset was requested for your organiser account. Use the link below to choose a new password.",
@@ -115,6 +116,18 @@ export function renderEmail(input: EmailTemplateInput): {
   const mainWebsite = safeUrl(input.mainWebsite);
   const privacyUrl = safeUrl(new URL("/privacy", actionUrl).href);
   const communityUrl = input.whatsappUrl ? safeUrl(input.whatsappUrl) : null;
+  const logo = new URL(
+    safeUrl(
+      input.logoUrl ||
+        new URL("/images/brand/exposition-issue-22-email.png", actionUrl).href,
+    ),
+  );
+  if (logo.pathname.endsWith("/exposition-issue-22.svg"))
+    logo.pathname = logo.pathname.replace(
+      /exposition-issue-22\.svg$/,
+      "exposition-issue-22-email.png",
+    );
+  const logoUrl = logo.href;
   const candidate =
     input.kind === "REGISTRATION_CONFIRMATION" ||
     input.kind === "CANDIDATE_VERIFICATION";
@@ -128,36 +141,37 @@ export function renderEmail(input: EmailTemplateInput): {
     ? "This verification link expires and can be used once. If it no longer works, request a new verification email."
     : "If this link has expired, request a new invitation or password-reset email as appropriate.";
   const paragraph = (value: string) =>
-    `<p style="margin:0 0 20px;font-size:16px;line-height:1.75;color:#d2d2d2;">${escapeHtml(value)}</p>`;
+    `<p style="margin:0 0 20px;font-size:16px;line-height:1.75;color:#c7c2ba;">${escapeHtml(value)}</p>`;
   const referenceHtml = reference
-    ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:24px 0;border:1px solid #514332;border-radius:12px;background-color:#1c1915;"><tr><td style="padding:20px;"><p style="margin:0 0 8px;color:#c0b5a5;font-size:11px;letter-spacing:2px;line-height:1.6;">REGISTRATION REFERENCE</p><p class="email-reference" style="margin:0;color:#e8c896;font-family:Consolas,monospace;font-size:15px;line-height:1.8;word-break:break-all;">${escapeHtml(reference)}</p></td></tr></table>`
+    ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:24px 0;border:1px solid #514332;border-left:3px solid #e8c896;border-radius:10px;background-color:#1c1915;"><tr><td style="padding:20px;"><p style="margin:0 0 8px;color:#c0b5a5;font-size:11px;letter-spacing:2px;line-height:1.6;">Your registration reference</p><p class="email-reference" style="margin:0;color:#e8c896;font-family:Consolas,monospace;font-size:15px;line-height:1.8;word-break:break-all;">${escapeHtml(reference)}</p></td></tr></table>`
     : "";
+  const communityIconUrl = safeUrl(new URL("whatsapp-email.png", logoUrl).href);
   const communityHtml =
     candidate && communityUrl
-      ? `<p style="margin:24px 0 0;font-size:14px;line-height:1.8;color:#b9b9b9;">Community updates are optional. <a href="${escapeHtml(communityUrl)}" style="color:#e8c896;text-decoration:underline;">Join the WhatsApp community</a>.</p>`
+      ? `<table class="email-community-cta" role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:24px 0 0;"><tr><td align="center" bgcolor="#14231a" style="border:1px solid #376b48;border-radius:10px;background-color:#14231a;mso-padding-alt:14px 20px;"><a href="${escapeHtml(communityUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:14px 20px;border-radius:10px;color:#b4efc4;font-size:14px;font-weight:700;line-height:1.7;text-align:center;text-decoration:none;mso-padding-alt:0;"><img src="${escapeHtml(communityIconUrl)}" width="22" height="22" alt="" role="presentation" style="display:inline-block;width:22px;height:22px;vertical-align:middle;border:0;">&nbsp;&nbsp;<span style="vertical-align:middle;">Join WhatsApp community</span></a></td></tr></table>`
       : "";
   const html = `<!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no,date=no,address=no,email=no"><meta name="color-scheme" content="dark light"><title>${escapeHtml(content.subject)}</title>
 <!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
-<style>body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}table,td{mso-table-lspace:0pt;mso-table-rspace:0pt}table{border-spacing:0}a{word-break:break-word}@media only screen and (max-width:600px){.email-outer{padding:16px 8px!important}.email-padding{padding:28px 22px!important}.email-header{padding:28px 22px!important}.email-footer{padding:26px 22px!important}.email-heading{font-size:29px!important;line-height:1.25!important}.email-wordmark{font-size:34px!important}.email-stack{display:block!important;width:100%!important;max-width:100%!important;text-align:left!important}.email-badge-cell{padding:18px 0 0!important}.email-footer-links{padding:18px 0 0!important;text-align:left!important}.email-cta{width:100%!important}.email-cta a{display:block!important;padding:16px 12px!important}.email-reference{font-size:13px!important}.email-footer-link{display:inline-block!important;padding:6px 0!important;margin-right:16px!important}}</style></head>
-<body style="margin:0;padding:0;width:100%;background-color:#0c0c0c;color:#f5f5f5;font-family:Arial,Helvetica,sans-serif;">
+<style>body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}table,td{mso-table-lspace:0pt;mso-table-rspace:0pt}table{border-spacing:0}img{border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic}a{word-break:break-word}@media only screen and (max-width:600px){.email-outer{padding:16px 8px!important}.email-padding{padding:28px 22px!important}.email-header{padding:28px 22px!important}.email-footer{padding:26px 22px!important}.email-heading{font-size:29px!important;line-height:1.25!important}.email-logo{width:260px!important;max-width:100%!important;height:auto!important}.email-stack{display:block!important;width:100%!important;max-width:100%!important;text-align:left!important}.email-badge-cell{padding:16px 0 0!important}.email-event-label span{font-size:13px!important}.email-footer-links{padding:18px 0 0!important;text-align:left!important}.email-community-cta{width:100%!important}.email-community-cta a{display:block!important;padding:14px 12px!important}.email-cta{width:100%!important}.email-cta a{display:block!important;padding:16px 12px!important}.email-reference{font-size:13px!important}.email-footer-link{display:inline-block!important;padding:6px 0!important;margin-right:16px!important}}</style></head>
+<body style="margin:0;padding:0;width:100%;background-color:#0c0c0c;color:#f5f2eb;font-family:Arial,Helvetica,sans-serif;">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;font-size:1px;line-height:1px;color:#0c0c0c;mso-hide:all;">${escapeHtml(content.introduction)}</div>
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#0c0c0c" style="width:100%;background-color:#0c0c0c;"><tr><td class="email-outer" align="center" style="padding:40px 16px;">
 <!--[if mso]><table role="presentation" width="600" align="center" cellspacing="0" cellpadding="0" border="0"><tr><td><![endif]-->
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#141414" style="width:100%;max-width:600px;margin:0 auto;border:1px solid #303030;border-radius:20px;background-color:#141414;">
 <tr><td height="4" bgcolor="#b8894f" style="height:4px;font-size:0;line-height:4px;background-color:#b8894f;border-radius:20px 20px 0 0;">&nbsp;</td></tr>
-<tr><td class="email-header" style="padding:32px 36px 28px;background-color:#191713;border-radius:16px 16px 0 0;">
+<tr><td class="email-header" style="padding:32px 36px 28px;background-color:#171510;border-radius:16px 16px 0 0;">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td class="email-stack" valign="middle" style="vertical-align:middle;">
-<p class="email-wordmark" style="margin:0;color:#e8c896;font-family:Georgia,'Times New Roman',serif;font-size:39px;font-weight:400;line-height:1.05;letter-spacing:-1px;">Exposition</p><p style="margin:9px 0 0;color:#bcb1a0;font-size:9px;font-weight:400;letter-spacing:2px;line-height:1.8;">CONNECTING TALENT &amp; OPPORTUNITY</p>
+<a href="${escapeHtml(mainWebsite)}" style="display:inline-block;color:#e8c896;text-decoration:none;"><img class="email-logo" src="${escapeHtml(logoUrl)}" width="284" height="62" alt="Exposition Issue 22" style="display:block;width:284px;max-width:100%;height:auto;border:0;color:#e8c896;font-size:26px;"></a><p style="margin:9px 0 0;color:#bcb1a0;font-size:9px;font-weight:400;letter-spacing:2px;line-height:1.8;">CONNECTING TALENT &amp; OPPORTUNITY</p>
 </td><td class="email-stack email-badge-cell" align="right" valign="middle" style="padding-left:16px;text-align:right;vertical-align:middle;">
-<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="display:inline-table;border:1px solid #655139;border-radius:10px;background-color:#252016;"><tr><td style="padding:10px 13px;text-align:center;"><p style="margin:0;color:#e8c896;font-size:10px;font-weight:700;letter-spacing:2px;line-height:1.5;">CAREER FAIR</p><p style="margin:3px 0 0;color:#bcb1a0;font-size:9px;letter-spacing:2px;line-height:1.5;">ISSUE 22</p></td></tr></table>
+<table class="email-event-label" role="presentation" cellspacing="0" cellpadding="0" border="0" style="display:inline-table;"><tr><td style="padding:0;text-align:left;white-space:nowrap;"><span style="color:#e8c896;font-size:12px;font-weight:700;line-height:1.8;">Career Fair</span><span style="margin-left:10px;padding-left:10px;border-left:1px solid #655139;color:#bcb1a0;font-size:12px;line-height:1.8;">Issue 22</span></td></tr></table>
 </td></tr></table>
 </td></tr>
 <tr><td style="padding:0 36px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td height="1" bgcolor="#514332" style="height:1px;font-size:0;line-height:1px;background-color:#514332;">&nbsp;</td></tr></table></td></tr>
 <tr><td class="email-padding" style="padding:36px;">
-<p style="margin:0 0 16px;color:#e8c896;font-size:10px;font-weight:700;letter-spacing:2px;line-height:1.8;">${escapeHtml(content.eyebrow)}</p><h1 class="email-heading" style="margin:0 0 28px;font-size:34px;line-height:1.2;font-weight:700;letter-spacing:-0.7px;color:#f5f5f5;">${escapeHtml(content.heading)}</h1>
+<p style="margin:0 0 16px;color:#e8c896;font-size:10px;font-weight:700;letter-spacing:2px;line-height:1.8;">${escapeHtml(content.eyebrow)}</p><h1 class="email-heading" style="margin:0 0 28px;font-family:Georgia,serif;font-size:38px;line-height:1.2;font-weight:400;letter-spacing:-0.7px;color:#f5f2eb;">${escapeHtml(content.heading)}</h1>
 ${paragraph(greeting)}${paragraph(content.introduction)}${referenceHtml}
-<table class="email-cta" role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:28px 0;"><tr><td align="center" bgcolor="#e8c896" style="border:1px solid #e8c896;border-radius:28px;background-color:#e8c896;mso-padding-alt:15px 26px;"><a href="${escapeHtml(actionUrl)}" style="display:inline-block;padding:15px 26px;border-radius:28px;color:#0a0a0a;font-size:15px;font-weight:700;line-height:1.5;text-align:center;text-decoration:none;mso-padding-alt:0;">${escapeHtml(content.action)}</a></td></tr></table>
+<table class="email-cta" role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:28px 0;"><tr><td align="center" bgcolor="#e8c896" style="border:1px solid #e8c896;border-radius:10px;background-color:#e8c896;mso-padding-alt:15px 26px;"><a href="${escapeHtml(actionUrl)}" style="display:inline-block;padding:15px 26px;border-radius:10px;color:#0a0a0a;font-size:15px;font-weight:700;line-height:1.5;text-align:center;text-decoration:none;mso-padding-alt:0;">${escapeHtml(content.action)}</a></td></tr></table>
 ${paragraph(expiry)}${paragraph(content.explanation)}${communityHtml}
 <p style="margin:28px 0 10px;color:#b9b9b9;font-size:12px;line-height:1.8;">If the button does not work, copy this link into your browser:</p><p style="margin:0;font-size:12px;line-height:1.8;overflow-wrap:anywhere;word-break:break-all;"><a href="${escapeHtml(actionUrl)}" style="color:#e8c896;text-decoration:underline;overflow-wrap:anywhere;word-break:break-all;">${escapeHtml(actionUrl)}</a></p>
 </td></tr>
@@ -179,9 +193,7 @@ ${paragraph(expiry)}${paragraph(content.explanation)}${communityHtml}
     `${content.action}: ${actionUrl}`,
     expiry,
     content.explanation,
-    candidate && communityUrl
-      ? `Optional WhatsApp community: ${communityUrl}`
-      : null,
+    candidate && communityUrl ? `WhatsApp community: ${communityUrl}` : null,
     content.ignore,
     "Exposition Career Fair organising committee",
     "Industrial Management Science Students' Association | University of Kelaniya",

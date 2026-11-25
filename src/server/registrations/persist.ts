@@ -222,7 +222,7 @@ export async function persistRegistration(
       throw new AppError(
         "CONFLICT",
         409,
-        "This registration could not be accepted. Please contact the organisers if you already registered.",
+        "A registration already exists for this email address. To change your details, please contact the organisers.",
       );
     }
     throw new AppError(

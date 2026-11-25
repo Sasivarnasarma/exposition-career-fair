@@ -428,14 +428,14 @@ export function ReviewStep({
       <div className="space-y-5 rounded-2xl border border-border p-5">
         {[
           [
-            "additional.accurate",
-            "I confirm that the information I have provided is accurate.",
-            false,
-          ],
-          [
             "additional.updates",
             "I would like to receive updates about this Career Fair.",
             true,
+          ],
+          [
+            "additional.accurate",
+            "I confirm that the information I have provided is accurate.",
+            false,
           ],
         ].map(([name, label, optional]) => (
           <div key={String(name)}>

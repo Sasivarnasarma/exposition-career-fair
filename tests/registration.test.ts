@@ -253,7 +253,11 @@ test("GPA precision matches database storage without silently rounding", () => {
 
 test("an untouched country-code prefix does not trigger a leave warning, while user input does", () => {
   const values = emptyDraft("test-notice");
+  assert.equal(values.additional.updates, true);
   assert.equal(hasRegistrationInput(values), false);
+  values.additional.updates = false;
+  assert.equal(hasRegistrationInput(values), true);
+  values.additional.updates = true;
   values.personal.phone = "+94  ";
   assert.equal(hasRegistrationInput(values), false);
   values.personal.phone = "+9477";

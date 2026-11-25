@@ -3,7 +3,8 @@ import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { connection } from "next/server";
 import Link from "next/link";
-import { CheckCircle2, ArrowUpRight } from "lucide-react";
+import Image from "next/image";
+import { CheckCircle2, ArrowLeft, MailCheck } from "lucide-react";
 import { readReceipt, receiptCookieName } from "@/server/registrations/receipt";
 import { registrationSettings } from "@/server/registrations/config";
 import { site } from "@/config/site";
@@ -77,28 +78,65 @@ async function Receipt() {
             </p>
           </>
         )}
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <div className="mt-8 border-t border-border pt-6">
           {receipt && (
-            <>
-              <Link href="/verify-email" className={buttonVariants()}>
-                Verify or resend email
-              </Link>
+            <div
+              className={
+                site.whatsappCommunityUrl
+                  ? "grid items-stretch gap-3 sm:grid-cols-2"
+                  : "grid gap-3"
+              }
+            >
               {site.whatsappCommunityUrl && (
                 <a
                   href={site.whatsappCommunityUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={buttonVariants({ variant: "outline" })}
+                  className={buttonVariants({
+                    variant: "outline",
+                    className:
+                      "min-h-13 w-full gap-2.5 border-whatsapp-border bg-whatsapp px-4 leading-6 text-whatsapp-foreground hover:border-whatsapp-foreground/60 hover:bg-whatsapp-hover hover:text-whatsapp-foreground",
+                  })}
                 >
-                  Join the WhatsApp community
-                  <ArrowUpRight aria-hidden />
+                  <Image
+                    src="/images/brand/whatsapp-email.png"
+                    alt=""
+                    aria-hidden
+                    width={20}
+                    height={20}
+                    unoptimized
+                    className="size-5 shrink-0"
+                  />
+                  <span>Join WhatsApp community</span>
                 </a>
               )}
-            </>
+              <Link
+                href="/verify-email"
+                className={buttonVariants({
+                  className: "min-h-13 w-full px-4 leading-6",
+                })}
+              >
+                <MailCheck aria-hidden />
+                <span>Verify or resend email</span>
+              </Link>
+            </div>
           )}
-          <Link href="/" className={buttonVariants({ variant: "outline" })}>
-            Back to the Career Fair
-          </Link>
+          <div
+            className={
+              receipt ? "mt-3 flex justify-center" : "flex justify-center"
+            }
+          >
+            <Link
+              href="/"
+              className={buttonVariants({
+                variant: receipt ? "ghost" : "outline",
+                className: "min-h-12 w-full sm:w-auto",
+              })}
+            >
+              <ArrowLeft aria-hidden />
+              Back to the Career Fair
+            </Link>
+          </div>
         </div>
       </Card>
     </main>
