@@ -8,6 +8,8 @@ import { readReceipt, receiptCookieName } from "@/server/registrations/receipt";
 import { registrationSettings } from "@/server/registrations/config";
 import { site } from "@/config/site";
 import { Card } from "@/components/ui/card";
+import { CopyButton } from "@/components/ui/copy-button";
+import { StatusPageSkeleton } from "@/components/ui/form-skeleton";
 import { buttonVariants } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "Registration receipt",
@@ -29,7 +31,9 @@ async function Receipt() {
       <Card className="w-full max-w-2xl">
         {receipt ? (
           <>
-            <CheckCircle2 aria-hidden className="mb-7 size-12 text-primary" />
+            <span className="mb-7 icon-well">
+              <CheckCircle2 aria-hidden className="size-7" />
+            </span>
             <p className="eyebrow">Your next step starts here</p>
             <h1 className="mt-4 font-display text-4xl leading-tight sm:text-4xl">
               You&apos;re pre-registered.
@@ -45,6 +49,9 @@ async function Receipt() {
               <p className="mt-3 font-mono text-sm leading-7 break-all text-primary">
                 {receipt.reference}
               </p>
+              <div className="mt-2">
+                <CopyButton value={receipt.reference} />
+              </div>
             </div>
             <p className="text-sm leading-7 text-muted-foreground">
               Pre-registration does not guarantee an interview or a position.
@@ -73,10 +80,7 @@ async function Receipt() {
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           {receipt && (
             <>
-              <Link
-                href="/verify-email"
-                className={buttonVariants({ variant: "outline" })}
-              >
+              <Link href="/verify-email" className={buttonVariants()}>
                 Verify or resend email
               </Link>
               {site.whatsappCommunityUrl && (
@@ -84,7 +88,7 @@ async function Receipt() {
                   href={site.whatsappCommunityUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={buttonVariants()}
+                  className={buttonVariants({ variant: "outline" })}
                 >
                   Join the WhatsApp community
                   <ArrowUpRight aria-hidden />
@@ -102,13 +106,7 @@ async function Receipt() {
 }
 export default function SuccessPage() {
   return (
-    <Suspense
-      fallback={
-        <main id="main-content" className="site-container flex-1 py-20">
-          <p role="status">Loading your receipt...</p>
-        </main>
-      }
-    >
+    <Suspense fallback={<StatusPageSkeleton label="Loading your receipt" />}>
       <Receipt />
     </Suspense>
   );

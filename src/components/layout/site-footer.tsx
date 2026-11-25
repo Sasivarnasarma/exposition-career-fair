@@ -119,6 +119,12 @@ export function SiteFooter() {
           >
             Previous fair photos
           </Link>
+          <Link
+            href="/verify-email"
+            className="inline-flex min-h-11 items-center rounded-lg hover:text-primary"
+          >
+            Verify email
+          </Link>
           <PrivacyNoticeTrigger
             className="inline-flex min-h-11 items-center rounded-lg text-left hover:text-primary"
             label="Privacy notice"

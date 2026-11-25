@@ -137,7 +137,7 @@ async function Dashboard({ searchParams }: { searchParams: Promise<Search> }) {
             : "Event registration closed"}
         </span>
       </div>
-      <div className="mt-5 grid overflow-hidden rounded-2xl border border-border bg-card sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-5 grid overflow-hidden rounded-2xl border border-border bg-card surface-panel sm:grid-cols-2 xl:grid-cols-4">
         {cards.map(({ label, value, detail, icon: Icon }) => (
           <section
             key={label}

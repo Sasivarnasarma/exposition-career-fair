@@ -186,9 +186,9 @@ export function VerificationScreen() {
       tabIndex={-1}
       className="site-container flex flex-1 items-center justify-center py-12 sm:py-20"
     >
-      <Card className="w-full max-w-2xl border-primary/20 shadow-[0_24px_100px_#00000030]">
+      <Card className="w-full max-w-2xl border-primary/20">
         <div className="mb-8 flex items-center justify-between gap-4">
-          <div className="flex size-12 items-center justify-center rounded-2xl border border-primary/25 bg-primary/10 text-primary">
+          <div className="icon-well">
             {verified ? (
               <CheckCircle2 aria-hidden className="size-6" />
             ) : (
@@ -201,7 +201,7 @@ export function VerificationScreen() {
           </span>
         </div>
         <p className="eyebrow">Exposition Career Fair</p>
-        <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
+        <h1 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">
           {verified ? "Your email is verified." : "Confirm your email."}
         </h1>
         <p className="mt-4 text-sm leading-7 text-muted-foreground">

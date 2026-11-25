@@ -1,3 +1,4 @@
+import { CopyButton } from "@/components/ui/copy-button";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
@@ -46,7 +47,7 @@ function Value({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="min-w-0">
       <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="mt-2 text-sm leading-6 break-words">
+      <dd className="mt-2 text-sm leading-6 wrap-break-word">
         {children || (
           <span className="text-muted-foreground">Not provided</span>
         )}
@@ -134,7 +135,10 @@ async function Registration({ params }: { params: Promise<{ id: string }> }) {
       </Link>
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
-          <p className="eyebrow">Registration / {candidate.reference}</p>
+          <p className="eyebrow break-all">
+            Registration / {candidate.reference}
+          </p>
+          <CopyButton value={candidate.reference} />
           <h1 className="mt-3 text-3xl font-bold tracking-tight break-words sm:text-4xl">
             {candidate.fullName}
           </h1>

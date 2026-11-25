@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowRight, Eye, EyeOff, LoaderCircle } from "lucide-react";
+import { ArrowRight, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Turnstile } from "@/components/security/turnstile";
 
 type Mode = "login" | "forgot" | "reset";
@@ -19,7 +20,6 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const pending = useRef(false);
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
-  const [visible, setVisible] = useState(false);
   const alert = useRef<HTMLDivElement>(null);
   const [resetToken, setResetToken] = useState<string | null>(null);
   const [resetReady, setResetReady] = useState(mode !== "reset");
@@ -177,36 +177,17 @@ export function AuthForm({ mode }: { mode: Mode }) {
               >
                 {mode === "reset" ? "New password" : "Password"}
               </label>
-              <div className="relative">
-                <Input
-                  id="admin-password"
-                  name="password"
-                  type={visible ? "text" : "password"}
-                  autoComplete={
-                    mode === "reset" ? "new-password" : "current-password"
-                  }
-                  required
-                  minLength={mode === "reset" ? 12 : undefined}
-                  maxLength={128}
-                  disabled={busy}
-                  className="pr-14"
-                />
-                <button
-                  type="button"
-                  aria-label={visible ? "Hide password" : "Show password"}
-                  aria-pressed={visible}
-                  aria-controls="admin-password"
-                  disabled={busy}
-                  onClick={() => setVisible((v) => !v)}
-                  className="absolute inset-y-0 right-1 flex w-11 items-center justify-center rounded-lg text-muted-foreground hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {visible ? (
-                    <EyeOff aria-hidden className="size-4" />
-                  ) : (
-                    <Eye aria-hidden className="size-4" />
-                  )}
-                </button>
-              </div>
+              <PasswordInput
+                id="admin-password"
+                name="password"
+                autoComplete={
+                  mode === "reset" ? "new-password" : "current-password"
+                }
+                required
+                minLength={mode === "reset" ? 12 : undefined}
+                maxLength={128}
+                disabled={busy}
+              />
               {mode === "reset" && (
                 <p className="text-xs text-muted-foreground">
                   Use at least 12 characters.
@@ -222,10 +203,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
               >
                 Confirm new password
               </label>
-              <Input
+              <PasswordInput
+                label="confirmation password"
                 id="admin-password-confirm"
                 name="confirmPassword"
-                type="password"
                 autoComplete="new-password"
                 required
                 minLength={12}

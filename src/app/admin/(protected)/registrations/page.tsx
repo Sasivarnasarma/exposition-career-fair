@@ -11,12 +11,15 @@ import {
   SlidersHorizontal,
   UsersRound,
   CheckCheck,
+  X,
 } from "lucide-react";
 import {
   getCandidateList,
   getCandidateOptions,
 } from "@/server/admin/candidates";
 import { parseAdminFilters } from "@/shared/admin-filters";
+import { CandidateCards } from "@/components/admin/candidate-cards";
+import { WorkspaceLoading } from "@/components/admin/workspace-loading";
 import { CandidateExports } from "@/components/admin/candidate-exports";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -129,6 +132,26 @@ async function Candidates({
     values.map((value) => ({ value, label: value }));
   const ids = (values: { id: string; label: string }[]) =>
     values.map(({ id, label }) => ({ value: id, label }));
+  const activeFilters = filterKeys.filter(
+    (key) => key !== "eventId" && Boolean(filters[key]),
+  );
+  const filterLabels: Record<string, string> = {
+    q: "Search",
+    institution: "Institution",
+    faculty: "Faculty",
+    degree: "Degree",
+    academicYear: "Academic year",
+    position: "Position",
+    opportunity: "Opportunity",
+    verified: "Email",
+  };
+  const choiceLabels = new Map(
+    [
+      ...options.academicYears,
+      ...options.positions,
+      ...options.opportunities,
+    ].map(({ id, label }) => [id, label]),
+  );
   return (
     <section className="space-y-7">
       <div className="flex flex-wrap items-end justify-between gap-5">
@@ -267,6 +290,41 @@ async function Candidates({
           </div>
         </details>
       </form>
+      {activeFilters.length > 0 && (
+        <nav
+          aria-label="Active candidate filters"
+          className="flex flex-wrap items-center gap-2"
+        >
+          <span className="mr-1 text-xs text-muted-foreground">
+            {activeFilters.length} active{" "}
+            {activeFilters.length === 1 ? "filter" : "filters"}
+          </span>
+          {activeFilters.map((key) => {
+            const remaining = new URLSearchParams(query);
+            remaining.delete(key);
+            const rawValue = filters[key] || "";
+            const label =
+              filterLabels[key] +
+              ": " +
+              (choiceLabels.get(rawValue) || rawValue);
+            return (
+              <Link
+                key={key}
+                href={
+                  "/admin/registrations" +
+                  (remaining.size ? "?" + remaining : "")
+                }
+                prefetch={false}
+                aria-label={"Remove " + label}
+                className="inline-flex min-h-11 max-w-full min-w-0 items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-xs leading-5 text-primary transition-colors hover:border-primary/50 hover:bg-primary/10"
+              >
+                <span className="min-w-0 wrap-break-word">{label}</span>
+                <X aria-hidden className="size-3.5 shrink-0" />
+              </Link>
+            );
+          })}
+        </nav>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-xs leading-5 text-muted-foreground">
           Exports include sensitive candidate details.
@@ -282,7 +340,8 @@ async function Candidates({
       <div className="overflow-hidden rounded-3xl border border-border bg-card">
         {data.rows.length > 0 ? (
           <>
-            <div className="relative overflow-x-auto">
+            <CandidateCards rows={data.rows} />
+            <div className="relative hidden overflow-x-auto md:block">
               <table className="w-full min-w-[850px] text-left text-sm">
                 <caption className="sr-only">
                   Candidate registrations, newest first. Open a candidate to
@@ -384,7 +443,7 @@ async function Candidates({
             </div>
             <nav
               aria-label="Candidate pagination"
-              className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-4"
+              className="flex flex-col items-start justify-between gap-4 border-t border-border px-5 py-4 sm:flex-row sm:items-center"
             >
               <p className="text-xs text-muted-foreground">
                 Showing{" "}
@@ -479,16 +538,7 @@ export default function CandidatesPage({
   searchParams: Promise<SearchParams>;
 }) {
   return (
-    <Suspense
-      fallback={
-        <div
-          role="status"
-          className="rounded-3xl border border-border bg-card p-10 text-sm text-muted-foreground"
-        >
-          Loading candidate directory…
-        </div>
-      }
-    >
+    <Suspense fallback={<WorkspaceLoading />}>
       <Candidates searchParams={searchParams} />
     </Suspense>
   );

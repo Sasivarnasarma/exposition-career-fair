@@ -1,7 +1,8 @@
 "use client";
-import { useId, type ComponentProps } from "react";
-import { useFormContext, type FieldPath } from "react-hook-form";
+import { type ComponentProps } from "react";
+import { useController, useFormContext, type FieldPath } from "react-hook-form";
 import { Input } from "@/components/ui/input";
+import { SearchableInput } from "@/components/ui/searchable-input";
 import type { RegistrationDraft } from "@/shared/registration-form";
 export function useFieldMessage(name: string) {
   const {
@@ -132,10 +133,22 @@ export function AcademicField({
   onParentChange?: () => void;
   suggestions?: boolean;
 }) {
-  const list = useId();
-  const { register, setValue } = useFormContext<RegistrationDraft>();
-  const field = register(name);
+  const { control, setValue } = useFormContext<RegistrationDraft>();
+  const { field } = useController({ name, control });
   const message = useFieldMessage(name);
+  const describedBy =
+    [suggestions && `hint-${name}`, message && `error-${name}`]
+      .filter(Boolean)
+      .join(" ") || undefined;
+  function change(value: string) {
+    field.onChange(value);
+    const match = options.find(
+      (option) =>
+        option.name.trim().toLowerCase() === value.trim().toLowerCase(),
+    );
+    setValue(idName, match?.id || "", { shouldDirty: true });
+    onParentChange?.();
+  }
   return (
     <div className="grid min-w-0 gap-3">
       <label
@@ -144,44 +157,39 @@ export function AcademicField({
       >
         {label}
       </label>
-      <Input
-        {...field}
-        id={`field-${name}`}
-        list={suggestions ? list : undefined}
-        autoComplete="off"
-        maxLength={200}
-        aria-invalid={!!message}
-        aria-describedby={
-          [suggestions && `hint-${name}`, message && `error-${name}`]
-            .filter(Boolean)
-            .join(" ") || undefined
-        }
-        onChange={(event) => {
-          void field.onChange(event);
-          const match = options.find(
-            (o) =>
-              o.name.trim().toLowerCase() ===
-              event.target.value.trim().toLowerCase(),
-          );
-          setValue(idName, match?.id || "", { shouldDirty: true });
-          onParentChange?.();
-        }}
-      />
+      {suggestions ? (
+        <SearchableInput
+          id={`field-${name}`}
+          name={field.name}
+          label={label}
+          value={String(field.value || "")}
+          options={options}
+          onChange={change}
+          onBlur={field.onBlur}
+          inputRef={field.ref}
+          invalid={!!message}
+          describedBy={describedBy}
+        />
+      ) : (
+        <Input
+          {...field}
+          value={String(field.value || "")}
+          id={`field-${name}`}
+          autoComplete="off"
+          maxLength={200}
+          aria-invalid={!!message}
+          aria-describedby={describedBy}
+          onChange={(event) => change(event.target.value)}
+        />
+      )}
       {suggestions && (
-        <>
-          <datalist id={list}>
-            {options.map((option) => (
-              <option key={option.name} value={option.name} />
-            ))}
-          </datalist>
-          <p
-            id={`hint-${name}`}
-            className="text-xs leading-5 text-muted-foreground"
-          >
-            Choose a suggestion or type your institution&apos;s full name if it
-            is not listed.
-          </p>
-        </>
+        <p
+          id={`hint-${name}`}
+          className="text-xs leading-5 text-muted-foreground"
+        >
+          Choose a suggestion or type your institution&apos;s full name if it is
+          not listed.
+        </p>
       )}
       {message && (
         <p id={`error-${name}`} className="text-sm text-destructive">
@@ -191,6 +199,7 @@ export function AcademicField({
     </div>
   );
 }
+
 export function GroupError({ name }: { name: string }) {
   const message = useFieldMessage(name);
   return message ? (

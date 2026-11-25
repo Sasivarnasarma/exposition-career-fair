@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Image from "next/image";
 import { ShieldCheck } from "lucide-react";
 import photo from "@/assets/images/previous-fair-conversation.webp";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
 import { AuthForm } from "./auth-form";
 
 export function AuthScreen({ mode }: { mode: "login" | "forgot" | "reset" }) {
@@ -11,7 +12,7 @@ export function AuthScreen({ mode }: { mode: "login" | "forgot" | "reset" }) {
       tabIndex={-1}
       className="site-container flex flex-1 items-center justify-center py-8 sm:py-14"
     >
-      <div className="grid w-full max-w-5xl overflow-hidden rounded-2xl border border-border bg-card lg:grid-cols-[0.85fr_1fr]">
+      <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-border bg-card surface-panel lg:grid-cols-[0.85fr_1fr]">
         <aside
           className="relative hidden min-h-[36rem] overflow-hidden lg:block"
           aria-label="From the previous Career Fair"
@@ -59,9 +60,10 @@ export function AuthScreen({ mode }: { mode: "login" | "forgot" | "reset" }) {
           </p>
           <Suspense
             fallback={
-              <p role="status" className="mt-8 text-sm text-muted-foreground">
-                Loading secure form...
-              </p>
+              <FormSkeleton
+                fields={mode === "reset" ? 2 : mode === "forgot" ? 1 : 2}
+                label="Loading secure form"
+              />
             }
           >
             <AuthForm mode={mode} />

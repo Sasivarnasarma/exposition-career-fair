@@ -1,15 +1,11 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  ArrowRight,
-  CheckCircle2,
-  Eye,
-  EyeOff,
-  LoaderCircle,
-} from "lucide-react";
+import { ArrowRight, CheckCircle2, LoaderCircle } from "lucide-react";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Turnstile } from "@/components/security/turnstile";
 
 export function AcceptInvitation() {
@@ -22,7 +18,6 @@ export function AcceptInvitation() {
     [],
   );
   const [challengeAttempt, setChallengeAttempt] = useState(0);
-  const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState(false);
   const pending = useRef(false);
   const [success, setSuccess] = useState(false);
@@ -101,12 +96,7 @@ export function AcceptInvitation() {
       requestAnimationFrame(() => status.current?.focus());
     }
   }
-  if (!ready)
-    return (
-      <p role="status" className="mt-8 text-sm text-muted-foreground">
-        Checking invitation...
-      </p>
-    );
+  if (!ready) return <FormSkeleton fields={3} label="Checking invitation" />;
   return (
     <div className="mt-8">
       {message && (
@@ -158,31 +148,14 @@ export function AcceptInvitation() {
               >
                 New password
               </label>
-              <div className="relative">
-                <Input
-                  id="invitation-password"
-                  name="password"
-                  type={visible ? "text" : "password"}
-                  autoComplete="new-password"
-                  required
-                  minLength={12}
-                  maxLength={128}
-                  className="pr-14"
-                />
-                <button
-                  type="button"
-                  aria-label={visible ? "Hide password" : "Show password"}
-                  aria-pressed={visible}
-                  onClick={() => setVisible((value) => !value)}
-                  className="absolute inset-y-0 right-1 flex w-11 items-center justify-center rounded-lg text-muted-foreground hover:text-primary"
-                >
-                  {visible ? (
-                    <EyeOff aria-hidden className="size-4" />
-                  ) : (
-                    <Eye aria-hidden className="size-4" />
-                  )}
-                </button>
-              </div>
+              <PasswordInput
+                id="invitation-password"
+                name="password"
+                autoComplete="new-password"
+                required
+                minLength={12}
+                maxLength={128}
+              />
               <p className="text-xs leading-5 text-muted-foreground">
                 Use at least 12 characters.
               </p>
@@ -194,10 +167,10 @@ export function AcceptInvitation() {
               >
                 Confirm password
               </label>
-              <Input
+              <PasswordInput
+                label="confirmation password"
                 id="invitation-confirmation"
                 name="confirmation"
-                type="password"
                 autoComplete="new-password"
                 required
                 minLength={12}

@@ -25,7 +25,9 @@ export function SiteHeader() {
   const compact =
     mounted &&
     (pathname.startsWith(routes.register) ||
-      pathname.startsWith("/registration"));
+      pathname.startsWith("/registration") ||
+      pathname === "/verify-email" ||
+      pathname === "/privacy");
   return (
     <header id="site-top" className="site-container">
       <nav
@@ -43,6 +45,20 @@ export function SiteHeader() {
           </Link>
         ) : (
           <div className="flex flex-wrap items-center gap-2">
+            <div className="hidden items-center gap-5 xl:flex">
+              <Link
+                href="/#how-it-works"
+                className="inline-flex min-h-11 items-center rounded-lg text-sm text-muted-foreground hover:text-primary"
+              >
+                How it works
+              </Link>
+              <Link
+                href="/#previous-fair"
+                className="inline-flex min-h-11 items-center rounded-lg text-sm text-muted-foreground hover:text-primary"
+              >
+                Previous fair
+              </Link>
+            </div>
             <a
               href={site.mainWebsite}
               className={buttonVariants({

@@ -15,7 +15,7 @@ export default function AcceptInvitationPage() {
     >
       <Card className="w-full max-w-lg border-primary/20">
         <div className="mb-8 flex items-center justify-between gap-4">
-          <div className="flex size-12 items-center justify-center rounded-2xl border border-primary/25 bg-primary/10 text-primary">
+          <div className="icon-well">
             <MailCheck aria-hidden className="size-5" />
           </div>
           <span className="inline-flex items-center gap-2 text-xs text-muted-foreground">
@@ -24,7 +24,7 @@ export default function AcceptInvitationPage() {
           </span>
         </div>
         <p className="eyebrow">Exposition Career Fair</p>
-        <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
+        <h1 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">
           Join the organising team.
         </h1>
         <p className="mt-4 text-sm leading-7 text-muted-foreground">

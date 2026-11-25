@@ -3,6 +3,9 @@ import {
   ArrowDown,
   ArrowUpRight,
   MessagesSquare,
+  ClipboardList,
+  Compass,
+  MailCheck,
   UsersRound,
 } from "lucide-react";
 import {
@@ -11,6 +14,7 @@ import {
   NextPhotoPreview,
 } from "@/components/landing/event-slideshow";
 import { RegistrationLink } from "@/components/landing/registration-link";
+import { Reveal } from "@/components/landing/reveal";
 import { site } from "@/config/site";
 
 export const metadata: Metadata = {
@@ -146,6 +150,64 @@ export default function Home() {
           opportunities and participating employers will be announced
           separately.
         </p>
+      </section>
+      <section
+        id="how-it-works"
+        aria-labelledby="journey-heading"
+        className="site-container scroll-mt-8 pt-14 sm:pt-20"
+      >
+        <Reveal>
+          <div className="grid gap-5 lg:grid-cols-[1fr_1fr] lg:gap-16">
+            <div>
+              <p className="eyebrow">Your route to the fair</p>
+              <h2
+                id="journey-heading"
+                className="mt-3 max-w-[20ch] font-display text-3xl leading-tight sm:text-4xl"
+              >
+                How pre-registration works.
+              </h2>
+            </div>
+            <p className="max-w-lg self-end text-sm leading-7 text-muted-foreground sm:text-base">
+              Introduce yourself to the organising team, choose the career paths
+              that interest you and confirm your email. You can review
+              everything before submitting.
+            </p>
+          </div>
+          <ol className="mt-9 grid divide-y divide-border rounded-2xl border border-border bg-card px-6 md:grid-cols-3 md:divide-x md:divide-y-0 md:px-0">
+            {[
+              {
+                icon: ClipboardList,
+                title: "Introduce yourself",
+                copy: "Add your contact details and academic background.",
+              },
+              {
+                icon: Compass,
+                title: "Choose your direction",
+                copy: "Select career interests, opportunity types and your first preference.",
+              },
+              {
+                icon: MailCheck,
+                title: "Confirm your email",
+                copy: "Save your registration reference and use the verification link in your email.",
+              },
+            ].map(({ icon: Icon, title, copy }, index) => (
+              <li key={title} className="py-7 md:px-7 md:py-8">
+                <div className="mb-5 flex items-center justify-between">
+                  <span className="icon-well">
+                    <Icon aria-hidden className="size-6" strokeWidth={1.5} />
+                  </span>
+                  <span className="font-mono text-xs text-muted-foreground">
+                    0{index + 1}
+                  </span>
+                </div>
+                <h3 className="text-base font-semibold">{title}</h3>
+                <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                  {copy}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </Reveal>
       </section>
       <section
         aria-labelledby="closing-title"

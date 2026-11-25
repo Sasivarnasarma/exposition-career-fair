@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { StatusPageSkeleton } from "@/components/ui/form-skeleton";
 import { Suspense } from "react";
 import { VerificationScreen } from "@/components/verification/verification-screen";
 
@@ -11,11 +12,7 @@ export const metadata: Metadata = {
 export default function VerifyEmailPage() {
   return (
     <Suspense
-      fallback={
-        <main id="main-content" className="site-container flex-1 py-20">
-          <p role="status">Preparing email verification...</p>
-        </main>
-      }
+      fallback={<StatusPageSkeleton label="Preparing email verification" />}
     >
       <VerificationScreen />
     </Suspense>

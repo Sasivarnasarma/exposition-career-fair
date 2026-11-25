@@ -318,7 +318,65 @@ export function AdminManagement({ data }: { data: AdminManagementData }) {
             {data.total}
           </span>
         </div>
-        <div className="overflow-x-auto">
+        <ul
+          aria-label="Organiser accounts"
+          className="divide-y divide-border border-t border-border md:hidden"
+        >
+          {data.accounts.map((account) => (
+            <li key={account.id} className="p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold wrap-break-word">
+                    {account.name}
+                  </p>
+                  <p className="mt-1 text-sm leading-6 break-all text-muted-foreground">
+                    {account.email}
+                  </p>
+                </div>
+                <span
+                  className={
+                    "shrink-0 rounded-full border px-2.5 py-1 text-xs " +
+                    (account.active
+                      ? "border-primary/25 bg-primary/5 text-primary"
+                      : "border-border text-muted-foreground")
+                  }
+                >
+                  {account.active ? "Active" : "Inactive"}
+                </span>
+              </div>
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+                <span className="text-xs text-muted-foreground">
+                  {account.role === "SUPER_ADMIN"
+                    ? "Super administrator"
+                    : "Administrator"}
+                </span>
+                {account.id === data.actorId ? (
+                  <span className="text-xs text-primary">Your account</span>
+                ) : (
+                  <Button
+                    disabled={pending}
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setConfirmation({
+                        kind: "account",
+                        id: account.id,
+                        active: !account.active,
+                      })
+                    }
+                    aria-label={
+                      (account.active ? "Deactivate " : "Reactivate ") +
+                      account.email
+                    }
+                  >
+                    {account.active ? "Deactivate" : "Reactivate"}
+                  </Button>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+        <div className="relative hidden overflow-x-auto md:block">
           <table className="w-full min-w-[620px] text-left text-sm">
             <caption className="sr-only">
               Organiser accounts, roles and access controls
@@ -429,93 +487,170 @@ export function AdminManagement({ data }: { data: AdminManagementData }) {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px] text-left text-sm">
-              <caption className="sr-only">
-                Invitations, link status and email delivery
-              </caption>
-              <thead className="border-y border-border bg-background/40 text-xs text-muted-foreground">
-                <tr>
-                  <th scope="col" className="px-5 py-3 font-medium">
-                    Email
-                  </th>
-                  <th scope="col" className="px-5 py-3 font-medium">
-                    Link
-                  </th>
-                  <th scope="col" className="px-5 py-3 font-medium">
-                    Delivery
-                  </th>
-                  <th scope="col" className="px-5 py-3 font-medium">
-                    Expires
-                  </th>
-                  <th scope="col" className="px-5 py-3 text-right font-medium">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {data.invitations.map((invitation) => (
-                  <tr key={invitation.id}>
-                    <td className="px-5 py-4">{invitation.email}</td>
-                    <td
-                      className={`px-5 py-4 text-xs ${invitation.status === "Pending" ? "text-primary" : "text-muted-foreground"}`}
+          <>
+            <ul
+              aria-label="Organiser invitations"
+              className="divide-y divide-border border-t border-border md:hidden"
+            >
+              {data.invitations.map((invitation) => (
+                <li key={invitation.id} className="p-5">
+                  <p className="text-sm font-medium break-all">
+                    {invitation.email}
+                  </p>
+                  <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <dt className="text-xs text-muted-foreground">
+                        Invitation
+                      </dt>
+                      <dd className="mt-1">{invitation.status}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs text-muted-foreground">
+                        Email delivery
+                      </dt>
+                      <dd className="mt-1">
+                        {{
+                          SENT: "Sent",
+                          PROCESSING: "Sending",
+                          FAILED: "Failed",
+                          CANCELLED: "Cancelled",
+                          PENDING: "Queued",
+                          NOT_QUEUED: "Not queued",
+                        }[invitation.delivery] || "Not queued"}
+                      </dd>
+                    </div>
+                    <div className="col-span-2">
+                      <dt className="text-xs text-muted-foreground">
+                        Link expires
+                      </dt>
+                      <dd className="mt-1">{date(invitation.expiresAt)}</dd>
+                    </div>
+                  </dl>
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    {invitation.status === "Pending" && (
+                      <Button
+                        disabled={pending}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          setConfirmation({
+                            kind: "invitation",
+                            id: invitation.id,
+                          })
+                        }
+                      >
+                        Revoke
+                      </Button>
+                    )}
+                    {invitation.status !== "Accepted" &&
+                      (invitation.status !== "Pending" ||
+                        ["FAILED", "CANCELLED", "NOT_QUEUED"].includes(
+                          invitation.delivery,
+                        )) && (
+                        <Button
+                          disabled={pending}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => void invite(invitation.email)}
+                        >
+                          Invite again
+                        </Button>
+                      )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <div className="relative hidden overflow-x-auto md:block">
+              <table className="w-full min-w-[700px] text-left text-sm">
+                <caption className="sr-only">
+                  Invitations, link status and email delivery
+                </caption>
+                <thead className="border-y border-border bg-background/40 text-xs text-muted-foreground">
+                  <tr>
+                    <th scope="col" className="px-5 py-3 font-medium">
+                      Email
+                    </th>
+                    <th scope="col" className="px-5 py-3 font-medium">
+                      Link
+                    </th>
+                    <th scope="col" className="px-5 py-3 font-medium">
+                      Delivery
+                    </th>
+                    <th scope="col" className="px-5 py-3 font-medium">
+                      Expires
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-5 py-3 text-right font-medium"
                     >
-                      {invitation.status}
-                    </td>
-                    <td className="px-5 py-4 text-xs text-muted-foreground">
-                      {invitation.delivery === "SENT"
-                        ? "Sent"
-                        : invitation.delivery === "PROCESSING"
-                          ? "Sending"
-                          : invitation.delivery === "FAILED"
-                            ? "Failed"
-                            : invitation.delivery === "CANCELLED"
-                              ? "Cancelled"
-                              : invitation.delivery === "PENDING"
-                                ? "Queued"
-                                : "Not queued"}
-                    </td>
-                    <td className="px-5 py-4 text-xs text-muted-foreground">
-                      {date(invitation.expiresAt)}
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="flex justify-end gap-2">
-                        {invitation.status === "Pending" && (
-                          <Button
-                            disabled={pending}
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              setConfirmation({
-                                kind: "invitation",
-                                id: invitation.id,
-                              })
-                            }
-                          >
-                            Revoke
-                          </Button>
-                        )}
-                        {invitation.status !== "Accepted" &&
-                          (invitation.status !== "Pending" ||
-                            ["FAILED", "CANCELLED", "NOT_QUEUED"].includes(
-                              invitation.delivery,
-                            )) && (
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {data.invitations.map((invitation) => (
+                    <tr key={invitation.id}>
+                      <td className="px-5 py-4">{invitation.email}</td>
+                      <td
+                        className={`px-5 py-4 text-xs ${invitation.status === "Pending" ? "text-primary" : "text-muted-foreground"}`}
+                      >
+                        {invitation.status}
+                      </td>
+                      <td className="px-5 py-4 text-xs text-muted-foreground">
+                        {invitation.delivery === "SENT"
+                          ? "Sent"
+                          : invitation.delivery === "PROCESSING"
+                            ? "Sending"
+                            : invitation.delivery === "FAILED"
+                              ? "Failed"
+                              : invitation.delivery === "CANCELLED"
+                                ? "Cancelled"
+                                : invitation.delivery === "PENDING"
+                                  ? "Queued"
+                                  : "Not queued"}
+                      </td>
+                      <td className="px-5 py-4 text-xs text-muted-foreground">
+                        {date(invitation.expiresAt)}
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex justify-end gap-2">
+                          {invitation.status === "Pending" && (
                             <Button
                               disabled={pending}
-                              variant="outline"
+                              variant="ghost"
                               size="sm"
-                              onClick={() => void invite(invitation.email)}
+                              onClick={() =>
+                                setConfirmation({
+                                  kind: "invitation",
+                                  id: invitation.id,
+                                })
+                              }
                             >
-                              Invite again
+                              Revoke
                             </Button>
                           )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                          {invitation.status !== "Accepted" &&
+                            (invitation.status !== "Pending" ||
+                              ["FAILED", "CANCELLED", "NOT_QUEUED"].includes(
+                                invitation.delivery,
+                              )) && (
+                              <Button
+                                disabled={pending}
+                                variant="outline"
+                                size="sm"
+                                onClick={() => void invite(invitation.email)}
+                              >
+                                Invite again
+                              </Button>
+                            )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
         <Pagination
           type="invitations"
